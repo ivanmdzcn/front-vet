@@ -1,0 +1,103 @@
+<div class="rol-list-container">
+  <mat-card>
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon">admin_panel_settings</mat-icon>
+          <h1>Roles del Sistema</h1>
+        </div>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          Nuevo Rol
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading spinner -->
+      <div class="loading-container" *ngIf="loading()">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-container" *ngIf="!loading()">
+        <table mat-table [dataSource]="displayedRoles()" class="rol-table">
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Nombre</th>
+            <td mat-cell *matCellDef="let rol">
+              <div class="rol-info">
+                <mat-icon>shield</mat-icon>
+                <span class="nombre">{{ rol.nombre }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Descripción Column -->
+          <ng-container matColumnDef="descripcion">
+            <th mat-header-cell *matHeaderCellDef>Descripción</th>
+            <td mat-cell *matCellDef="let rol">
+              {{ rol.descripcion || '-' }}
+            </td>
+          </ng-container>
+
+          <!-- ❌ ELIMINAR TODA ESTA SECCIÓN DE ESTADO -->
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let rol">
+              <button 
+                mat-icon-button 
+                color="accent"
+                (click)="openPermisosDialog(rol)"
+                matTooltip="Gestionar permisos">
+                <mat-icon>security</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                color="primary"
+                (click)="openEditDialog(rol)"
+                matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                color="warn"
+                (click)="deleteRol(rol)"
+                matTooltip="Eliminar"
+                [disabled]="rol.nombre === 'Administrador'">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- No data row -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+              <div class="no-data-message">
+                <mat-icon>info</mat-icon>
+                <p>No se encontraron roles</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Paginador -->
+        <mat-paginator 
+          [length]="totalItems"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

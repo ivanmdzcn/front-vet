@@ -1,0 +1,54 @@
+<div class="dashboard">
+  <h1>Bienvenido, {{ currentUser?.nombreCompleto }}</h1>
+  <p class="subtitle">Rol: {{ currentUser?.rol }}</p>
+
+  <div class="cards-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon" style="background-color: #e3f2fd;">
+          <mat-icon style="color: #1976d2;">people</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Clientes</div>
+          <div class="stat-value">-</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon" style="background-color: #f3e5f5;">
+          <mat-icon style="color: #7b1fa2;">pets</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Mascotas</div>
+          <div class="stat-value">-</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon" style="background-color: #e8f5e9;">
+          <mat-icon style="color: #388e3c;">event</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Citas Hoy</div>
+          <div class="stat-value">-</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon" style="background-color: #fff3e0;">
+          <mat-icon style="color: #f57c00;">medical_services</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Consultas</div>
+          <div class="stat-value">-</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -1,0 +1,108 @@
+<div class="sidebar" [class.collapsed]="!isOpen()">
+  <div class="sidebar-content">
+    <mat-nav-list>
+      <a 
+        mat-list-item 
+        routerLink="/dashboard" 
+        routerLinkActive="active"
+        class="menu-item">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle *ngIf="isOpen()">Dashboard</span>
+      </a>
+
+      <mat-divider></mat-divider>
+
+      <div class="menu-section" *ngIf="isOpen()">
+        <div class="section-title">GESTIÓN</div>
+      </div>
+
+      <!-- Clientes, Mascotas, Citas, Consultas -->
+      <a 
+        mat-list-item 
+        *ngFor="let item of menuItems.slice(0, 4)"
+        [routerLink]="item.route" 
+        routerLinkActive="active"
+        class="menu-item"
+        [class.hidden]="!hasPermission(item.permission)">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle *ngIf="isOpen()">{{ item.label }}</span>
+      </a>
+
+      <!-- ✅ SECCIÓN DE FACTURACIÓN -->
+      <mat-divider *ngIf="hasPermission('Facturacion.Ver')"></mat-divider>
+
+      <div class="menu-section" *ngIf="isOpen() && hasPermission('Facturacion.Ver')">
+        <div class="section-title">FACTURACIÓN</div>
+      </div>
+
+      <!-- Productos, Servicios, Órdenes de Pago -->
+      <a 
+        mat-list-item 
+        *ngFor="let item of menuItems.slice(4, 7)"
+        [routerLink]="item.route" 
+        routerLinkActive="active"
+        class="menu-item"
+        [class.hidden]="!hasPermission(item.permission)">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle *ngIf="isOpen()">{{ item.label }}</span>
+      </a>
+
+      <!-- ✅ SECCIÓN DE SEGURIDAD -->
+      <mat-divider *ngIf="hasPermission('Usuarios.Ver')"></mat-divider>
+
+      <div class="menu-section" *ngIf="isOpen() && hasPermission('Usuarios.Ver')">
+        <div class="section-title">SEGURIDAD</div>
+      </div>
+
+      <!-- Usuarios y Roles -->
+      <a 
+        mat-list-item 
+        *ngFor="let item of menuItems.slice(7, 9)"
+        [routerLink]="item.route" 
+        routerLinkActive="active"
+        class="menu-item"
+        [class.hidden]="!hasPermission(item.permission)">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle *ngIf="isOpen()">{{ item.label }}</span>
+      </a>
+
+      <!-- ✅ SECCIÓN DE CONFIGURACIÓN -->
+      <mat-divider *ngIf="hasPermission('Configuracion.Ver')"></mat-divider>
+
+      <div class="menu-section" *ngIf="isOpen() && hasPermission('Configuracion.Ver')">
+        <div class="section-title">CONFIGURACIÓN</div>
+      </div>
+
+      <!-- Configuración -->
+      <a 
+        mat-list-item 
+        *ngFor="let item of menuItems.slice(9, 10)"
+        [routerLink]="item.route" 
+        routerLinkActive="active"
+        class="menu-item"
+        [class.hidden]="!hasPermission(item.permission)">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle *ngIf="isOpen()">{{ item.label }}</span>
+      </a>
+
+      <!-- ✅ SECCIÓN DE REPORTES -->
+      <mat-divider *ngIf="hasPermission('Reportes.Ver')"></mat-divider>
+
+      <div class="menu-section" *ngIf="isOpen() && hasPermission('Reportes.Ver')">
+        <div class="section-title">REPORTES</div>
+      </div>
+
+      <!-- Reportes -->
+      <a 
+        mat-list-item 
+        *ngFor="let item of menuItems.slice(10)"
+        [routerLink]="item.route" 
+        routerLinkActive="active"
+        class="menu-item"
+        [class.hidden]="!hasPermission(item.permission)">
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle *ngIf="isOpen()">{{ item.label }}</span>
+      </a>
+    </mat-nav-list>
+  </div>
+</div>

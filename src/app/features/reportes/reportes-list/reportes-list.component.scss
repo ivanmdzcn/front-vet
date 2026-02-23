@@ -1,0 +1,123 @@
+.reportes-container {
+  padding: 20px;
+
+  .header-content {
+    width: 100%;
+
+    .title-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .title-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #1976d2;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 24px !important;
+
+    .subtitle {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .reportes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+
+      .reporte-card {
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+
+        &:not(.disabled):hover {
+          transform: translateY(-4px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        &.disabled {
+          opacity: 0.6;
+          background-color: #fafafa;
+        }
+
+        mat-card-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px;
+          background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+          border-bottom: 1px solid #e0e0e0;
+
+          .reporte-icon {
+            font-size: 40px;
+            width: 40px;
+            height: 40px;
+            color: #1976d2;
+          }
+
+          mat-card-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+          }
+
+          mat-card-subtitle {
+            margin: 4px 0 0 0;
+            color: #666;
+          }
+        }
+
+        mat-card-content {
+          flex: 1;
+          padding: 20px !important;
+
+          p {
+            margin: 0 0 16px 0;
+            color: #555;
+            line-height: 1.6;
+          }
+
+          .full-width {
+            width: 100%;
+          }
+        }
+
+        mat-card-actions {
+          padding: 16px;
+          border-top: 1px solid #e0e0e0;
+          display: flex;
+          justify-content: center;
+
+          button {
+            mat-icon {
+              margin-right: 8px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .reportes-container {
+    padding: 12px;
+
+    .reportes-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}

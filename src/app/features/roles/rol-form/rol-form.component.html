@@ -1,0 +1,63 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'add_circle' }}</mat-icon>
+  {{ isEditMode ? 'Editar Rol' : 'Nuevo Rol' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="rolForm">
+    <!-- Nombre -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Nombre del Rol</mat-label>
+      <input 
+        matInput 
+        formControlName="nombre"
+        placeholder="Ej: Veterinario">
+      <mat-icon matPrefix>shield</mat-icon>
+      <mat-error *ngIf="rolForm.get('nombre')?.invalid">
+        {{ getErrorMessage('nombre') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Descripción -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción</mat-label>
+      <textarea 
+        matInput 
+        formControlName="descripcion"
+        rows="3"
+        placeholder="Descripción del rol y sus responsabilidades">
+      </textarea>
+      <mat-icon matPrefix>description</mat-icon>
+      <mat-error *ngIf="rolForm.get('descripcion')?.invalid">
+        {{ getErrorMessage('descripcion') }}
+      </mat-error>
+    </mat-form-field>
+
+    <!-- ❌ ELIMINAR TODA LA SECCIÓN DE ESTADO -->
+
+    <!-- Info box -->
+    <div class="info-box">
+      <mat-icon>info</mat-icon>
+      <div class="info-content">
+        <strong>Nota:</strong> Después de crear el rol, podrás asignar permisos específicos desde la lista de roles.
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button 
+    mat-button 
+    (click)="onCancel()"
+    [disabled]="loading">
+    Cancelar
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="loading || rolForm.invalid">
+    <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+    <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Crear' }}</span>
+  </button>
+</mat-dialog-actions>

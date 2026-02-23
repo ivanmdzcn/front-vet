@@ -1,0 +1,170 @@
+<h2 mat-dialog-title>
+  <mat-icon>medical_services</mat-icon>
+  Detalle de Consulta #{{ data.consultaId }}
+</h2>
+
+<mat-dialog-content>
+  <div *ngIf="loading()" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando información...</p>
+  </div>
+
+  <div *ngIf="!loading() && consulta()" class="detalle-content">
+    <!-- Información de la Consulta -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>pets</mat-icon>
+          {{ consulta()!.mascotaNombre }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          Cliente: {{ consulta()!.clienteNombre }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Fecha y Hora:</strong>
+            <span>{{ formatFechaHora(consulta()!.fechaHora) }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Veterinario:</strong>
+            <span>Dr. {{ consulta()!.veterinarioNombre }}</span>
+          </div>
+          <div class="info-item">
+            <strong>Tipo:</strong>
+            <mat-chip>{{ consulta()!.esWalkIn ? 'Walk-in' : 'Con Cita' }}</mat-chip>
+          </div>
+          <div class="info-item">
+            <strong>Motivo:</strong>
+            <span>{{ consulta()!.motivo }}</span>
+          </div>
+          <div class="info-item full-width" *ngIf="consulta()!.diagnostico">
+            <strong>Diagnóstico:</strong>
+            <p>{{ consulta()!.diagnostico }}</p>
+          </div>
+          <div class="info-item full-width" *ngIf="consulta()!.tratamiento">
+            <strong>Tratamiento:</strong>
+            <p>{{ consulta()!.tratamiento }}</p>
+          </div>
+          <div class="info-item full-width" *ngIf="consulta()!.observaciones">
+            <strong>Observaciones:</strong>
+            <p>{{ consulta()!.observaciones }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabs para Recetas y Exámenes -->
+    <mat-tab-group class="content-tabs">
+      <!-- Tab: Recetas -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>medication</mat-icon>
+          Recetas ({{ recetas().length }})
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-actions">
+            <button mat-raised-button color="primary" (click)="agregarReceta()">
+              <mat-icon>add</mat-icon>
+              Nueva Receta
+            </button>
+          </div>
+
+          <div *ngIf="recetas().length === 0" class="empty-state">
+            <mat-icon>medication</mat-icon>
+            <p>No hay recetas asociadas a esta consulta</p>
+          </div>
+
+          <div class="items-list">
+            <mat-card *ngFor="let receta of recetas()" class="item-card">
+              <mat-card-content>
+                <div class="item-header">
+                  <h4>
+                    <mat-icon>medical_information</mat-icon>
+                    {{ receta.medicamento }}
+                  </h4>
+                  <div class="item-actions">
+                    <button mat-icon-button (click)="editarReceta(receta)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarReceta(receta)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="item-details">
+                  <p><strong>Dosis:</strong> {{ receta.dosis }} {{ receta.unidad }}</p>
+                  <p><strong>Frecuencia:</strong> {{ receta.frecuencia }}</p>
+                  <p><strong>Duración:</strong> {{ receta.duracionDias }} días</p>
+                  <p><strong>Vía:</strong> {{ receta.viaAdministracion }}</p>
+                  <p *ngIf="receta.indicaciones"><strong>Indicaciones:</strong> {{ receta.indicaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Tab: Exámenes -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>science</mat-icon>
+          Exámenes ({{ examenes().length }})
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-actions">
+            <button mat-raised-button color="primary" (click)="agregarExamen()">
+              <mat-icon>add</mat-icon>
+              Solicitar Examen
+            </button>
+          </div>
+
+          <div *ngIf="examenes().length === 0" class="empty-state">
+            <mat-icon>science</mat-icon>
+            <p>No hay exámenes asociados a esta consulta</p>
+          </div>
+
+          <div class="items-list">
+            <mat-card *ngFor="let examen of examenes()" class="item-card">
+              <mat-card-content>
+                <div class="item-header">
+                  <h4>
+                    <mat-icon>biotech</mat-icon>
+                    {{ examen.tipoExamen }}
+                  </h4>
+                  <div class="item-actions">
+                    <button mat-icon-button (click)="editarExamen(examen)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarExamen(examen)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="item-details">
+                  <p><strong>Fecha Solicitud:</strong> {{ formatFecha(examen.fechaSolicitud) }}</p>
+                  <p *ngIf="examen.fechaResultado">
+                    <strong>Fecha Resultado:</strong> {{ formatFecha(examen.fechaResultado) }}
+                  </p>
+                  <p *ngIf="examen.descripcion"><strong>Descripción:</strong> {{ examen.descripcion }}</p>
+                  <p *ngIf="examen.resultado"><strong>Resultado:</strong> {{ examen.resultado }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="verHistorialCompleto()" *ngIf="consulta()">
+    <mat-icon>history</mat-icon>
+    Ver Historial Completo
+  </button>
+  <button mat-raised-button (click)="cerrar()">Cerrar</button>
+</mat-dialog-actions>

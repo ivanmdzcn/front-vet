@@ -1,0 +1,168 @@
+.mascota-list-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+mat-card {
+  margin-bottom: 24px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 16px 0;
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    color: #333;
+  }
+}
+
+.title-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #7b1fa2;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 16px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.mascota-table {
+  width: 100%;
+  background-color: white;
+}
+
+.mascota-name {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+
+  .especie-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #7b1fa2;
+
+    &.perro {
+      color: #f57c00;
+    }
+
+    &.gato {
+      color: #0288d1;
+    }
+
+    &.ave {
+      color: #388e3c;
+    }
+
+    &.conejo {
+      color: #d32f2f;
+    }
+  }
+
+  .name {
+    font-size: 15px;
+  }
+}
+
+.especie-chip {
+  font-size: 12px;
+  min-height: 28px;
+  padding: 4px 12px;
+}
+
+.sexo-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+
+    &.male-icon {
+      color: #1976d2;
+    }
+
+    &.female-icon {
+      color: #e91e63;
+    }
+  }
+}
+
+.cliente-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.no-data {
+  text-align: center;
+  padding: 48px 24px !important;
+}
+
+.no-data-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: #999;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .search-field {
+    max-width: 100%;
+  }
+}

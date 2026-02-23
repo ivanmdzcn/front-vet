@@ -1,0 +1,90 @@
+<h2 mat-dialog-title>
+  <mat-icon>security</mat-icon>
+  Gestionar Permisos: {{ rol.nombre }}
+</h2>
+
+<mat-dialog-content>
+  <!-- Loading spinner -->
+  <div class="loading-container" *ngIf="loading()">
+    <mat-spinner></mat-spinner>
+    <p>Cargando permisos...</p>
+  </div>
+
+  <!-- Permisos agrupados por módulo -->
+  <div class="permisos-container" *ngIf="!loading()">
+    <div class="info-section">
+      <mat-icon>info</mat-icon>
+      <span>Selecciona los permisos que tendrá este rol. Los usuarios con este rol solo podrán realizar las acciones permitidas.</span>
+    </div>
+
+    <mat-accordion multi>
+      <mat-expansion-panel *ngFor="let grupo of permisosAgrupados()" [expanded]="true">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <div class="module-header">
+              <mat-icon [class]="'module-icon ' + grupo.modulo.toLowerCase()">
+                {{ getModuleIcon(grupo.modulo) }}
+              </mat-icon>
+              <span class="module-name">{{ grupo.modulo }}</span>
+              <span class="module-count">({{ grupo.permisos.length }} permisos)</span>
+            </div>
+          </mat-panel-title>
+          <mat-panel-description>
+            <mat-checkbox
+              [checked]="isModuleFullySelected(grupo)"
+              [indeterminate]="isModulePartiallySelected(grupo)"
+              (change)="selectAllInModule(grupo, $event.checked)"
+              (click)="$event.stopPropagation()"
+              class="select-all-checkbox">
+              Seleccionar todos
+            </mat-checkbox>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <div class="permisos-list">
+          <div 
+            class="permiso-item"
+            *ngFor="let permiso of grupo.permisos">
+            <mat-checkbox
+              [checked]="isPermisoAsignado(permiso.id)"
+              (change)="togglePermiso(permiso.id)">
+              <div class="permiso-content">
+                <span class="permiso-accion">{{ permiso.accion }}</span>
+                <span class="permiso-descripcion" *ngIf="permiso.descripcion">
+                  {{ permiso.descripcion }}
+                </span>
+              </div>
+            </mat-checkbox>
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>
+
+    <!-- Resumen -->
+    <div class="summary-section">
+      <mat-icon>check_circle</mat-icon>
+      <span>
+        Permisos seleccionados: 
+        <strong>{{ getSelectedCount() }}</strong> de 
+        <strong>{{ getTotalCount() }}</strong>
+      </span>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button 
+    mat-button 
+    (click)="onCancel()"
+    [disabled]="saving()">
+    Cancelar
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary"
+    (click)="onSave()"
+    [disabled]="saving() || loading()">
+    <mat-spinner diameter="20" *ngIf="saving()"></mat-spinner>
+    <span *ngIf="!saving()">Guardar Permisos</span>
+  </button>
+</mat-dialog-actions>

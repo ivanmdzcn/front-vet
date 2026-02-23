@@ -1,0 +1,35 @@
+<mat-toolbar color="primary" class="header">
+  <button 
+    mat-icon-button 
+    (click)="toggleSidebar.emit()"
+    aria-label="Toggle menu">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span class="app-title">
+    <mat-icon class="app-icon">pets</mat-icon>
+    {{ nombreEmpresa() }}
+  </span>
+
+  <span class="spacer"></span>
+
+  <div class="user-section">
+    <button mat-button [matMenuTriggerFor]="userMenu">
+      <mat-icon>account_circle</mat-icon>
+      <span class="username">{{ currentUser?.nombreCompleto }}</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <div class="user-info">
+        <div class="user-name">{{ currentUser?.nombreCompleto }}</div>
+        <div class="user-role">{{ currentUser?.rol }}</div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar Sesión</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>

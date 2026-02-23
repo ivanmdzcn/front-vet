@@ -1,0 +1,251 @@
+.orden-form-container {
+  min-width: 800px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    color: #1976d2;
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+mat-dialog-content {
+  padding: 24px !important;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .cliente-section {
+      .full-width {
+        width: 100%;
+      }
+    }
+
+    .cita-consulta-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+
+      .checkbox-row {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+      }
+
+      .full-width {
+        width: 100%;
+      }
+    }
+
+    .add-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    }
+
+    .detalles-section {
+      margin-top: 20px;
+
+      .detalles-table {
+        width: 100%;
+        background: white;
+
+        th {
+          font-weight: 600;
+          color: #424242;
+        }
+
+        td {
+          padding: 8px;
+        }
+
+        .select-field {
+          width: 100%;
+          margin: 0;
+
+          ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+        }
+
+        .cantidad-field {
+          width: 80px;
+          margin: 0;
+
+          ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+        }
+
+        .precio-cell,
+        .subtotal-cell {
+          font-weight: 500;
+          white-space: nowrap;
+        }
+
+        .precio-cell {
+          color: #1976d2;
+        }
+
+        .subtotal-cell {
+          color: #2e7d32;
+          font-size: 15px;
+        }
+
+        mat-icon {
+          vertical-align: middle;
+        }
+      }
+
+      .campos-adicionales {
+        margin-top: 20px;
+        padding: 16px;
+        background: #fafafa;
+        border-radius: 4px;
+
+        .form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .full-width {
+          width: 100%;
+        }
+      }
+
+      .total-section {
+        padding: 20px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        margin-top: 16px;
+
+        .total-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+
+          .total-label {
+            font-size: 15px;
+            font-weight: 500;
+            color: #616161;
+          }
+
+          .total-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #424242;
+          }
+
+          &.total-final {
+            padding-top: 12px;
+
+            .total-label {
+              font-size: 18px;
+              font-weight: 700;
+              color: #424242;
+            }
+
+            .total-amount {
+              font-size: 24px;
+              font-weight: 700;
+              color: #2e7d32;
+            }
+          }
+        }
+
+        mat-divider {
+          margin: 8px 0;
+        }
+      }
+    }
+
+    .no-detalles {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 40px;
+      color: #757575;
+      background: #f9f9f9;
+      border-radius: 4px;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+      }
+    }
+  }
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  gap: 12px;
+
+  button {
+    min-width: 100px;
+
+    mat-spinner {
+      display: inline-block;
+      margin-right: 8px;
+    }
+  }
+}
+
+mat-divider {
+  margin: 16px 0;
+}
+
+// Responsive
+@media (max-width: 900px) {
+  .orden-form-container {
+    min-width: unset;
+    width: 100%;
+  }
+
+  mat-dialog-content {
+    form {
+      .add-buttons {
+        flex-direction: column;
+
+        button {
+          width: 100%;
+        }
+      }
+
+      .detalles-section {
+        .detalles-table {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}

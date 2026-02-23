@@ -40,3 +40,12 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Docker
+.env
+.env.development
+.env.production
+docker-compose.override.yml
+
+# Build artifacts
+*.log

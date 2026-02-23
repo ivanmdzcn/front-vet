@@ -1,0 +1,174 @@
+<div class="cita-list-container">
+    <mat-card>
+        <mat-card-header>
+            <div class="header-content">
+                <div class="title-section">
+                    <mat-icon class="title-icon">event</mat-icon>
+                    <h1>Citas</h1>
+                </div>
+                <button mat-raised-button color="primary" (click)="openCreateDialog()">
+                    <mat-icon>add</mat-icon>
+                    Nueva Cita
+                </button>
+            </div>
+        </mat-card-header>
+
+        <mat-card-content>
+            <!-- Filtro por fecha -->
+            <div class="filters-section">
+                <mat-form-field appearance="outline" class="date-filter">
+                    <mat-label>Filtrar por fecha</mat-label>
+                    <input matInput [matDatepicker]="picker" [formControl]="fechaFiltro" placeholder="Seleccione fecha">
+                    <mat-icon matPrefix>calendar_today</mat-icon>
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+
+                <button mat-icon-button *ngIf="fechaFiltro.value" (click)="clearFiltro()" matTooltip="Limpiar filtro">
+                    <mat-icon>clear</mat-icon>
+                </button>
+            </div>
+
+            <!-- Loading spinner -->
+            <div class="loading-container" *ngIf="loading()">
+                <mat-spinner></mat-spinner>
+            </div>
+
+            <!-- Tabla -->
+            <div class="table-container" *ngIf="!loading()">
+                <table mat-table [dataSource]="displayedCitas()" class="cita-table">
+                    <!-- Fecha/Hora Column -->
+                    <ng-container matColumnDef="fechaHora">
+                        <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
+                        <td mat-cell *matCellDef="let cita">
+                            <div class="fecha-info">
+                                <mat-icon>schedule</mat-icon>
+                                {{ formatFechaHora(cita.fechaHora) }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Mascota Column -->
+                    <ng-container matColumnDef="mascota">
+                        <th mat-header-cell *matHeaderCellDef>Mascota</th>
+                        <td mat-cell *matCellDef="let cita">
+                            <div class="mascota-info">
+                                <mat-icon>pets</mat-icon>
+                                {{ cita.mascotaNombre }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Cliente Column -->
+                    <ng-container matColumnDef="cliente">
+                        <th mat-header-cell *matHeaderCellDef>Cliente</th>
+                        <td mat-cell *matCellDef="let cita">
+                            <div class="cliente-info">
+                                <div class="nombre">{{ cita.clienteNombre }}</div>
+                                <div class="telefono" *ngIf="cita.clienteTelefono">
+                                    <mat-icon>phone</mat-icon>
+                                    {{ cita.clienteTelefono }}
+                                </div>
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Veterinario Column -->
+                    <ng-container matColumnDef="veterinario">
+                        <th mat-header-cell *matHeaderCellDef>Veterinario</th>
+                        <td mat-cell *matCellDef="let cita">
+                            <div class="veterinario-info">
+                                <mat-icon>medical_services</mat-icon>
+                                {{ cita.veterinarioNombre }}
+                            </div>
+                        </td>
+                    </ng-container>
+
+                    <!-- Motivo Column -->
+                    <ng-container matColumnDef="motivo">
+                        <th mat-header-cell *matHeaderCellDef>Motivo</th>
+                        <td mat-cell *matCellDef="let cita">
+                            {{ cita.motivo }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Estado Column -->
+                    <ng-container matColumnDef="estado">
+                        <th mat-header-cell *matHeaderCellDef>Estado</th>
+                        <td mat-cell *matCellDef="let cita">
+                            <mat-chip [class]="getEstadoClass(cita.estado)">
+                                {{ cita.estadoTexto }}
+                            </mat-chip>
+                        </td>
+                    </ng-container>
+
+                    <!-- Acciones Column -->
+                    <!-- Acciones Column -->
+                    <ng-container matColumnDef="acciones">
+                        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                        <td mat-cell *matCellDef="let cita">
+                            <button mat-icon-button [matMenuTriggerFor]="menu" matTooltip="Opciones">
+                                <mat-icon>more_vert</mat-icon>
+                            </button>
+                            <mat-menu #menu="matMenu">
+                                <!-- ✅ BOTÓN ATENDER - NUEVO -->
+                                <button mat-menu-item (click)="atenderCita(cita)"
+                                    *ngIf="cita.estado === EstadoCita.Confirmada || cita.estado === EstadoCita.Pendiente">
+                                    <mat-icon color="primary">medical_services</mat-icon>
+                                    <span>Atender ahora</span>
+                                </button>
+                                <mat-divider
+                                    *ngIf="cita.estado === EstadoCita.Confirmada || cita.estado === EstadoCita.Pendiente"></mat-divider>
+
+                                <button mat-menu-item (click)="openEditDialog(cita)">
+                                    <mat-icon>edit</mat-icon>
+                                    <span>Editar</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item (click)="cambiarEstado(cita, EstadoCita.Confirmada)"
+                                    *ngIf="cita.estado === EstadoCita.Pendiente">
+                                    <mat-icon>check_circle</mat-icon>
+                                    <span>Confirmar</span>
+                                </button>
+                                <button mat-menu-item (click)="cambiarEstado(cita, EstadoCita.Completada)"
+                                    *ngIf="cita.estado !== EstadoCita.Completada && cita.estado !== EstadoCita.Cancelada">
+                                    <mat-icon>done_all</mat-icon>
+                                    <span>Marcar completada</span>
+                                </button>
+                                <button mat-menu-item (click)="cambiarEstado(cita, EstadoCita.NoAsistio)"
+                                    *ngIf="cita.estado !== EstadoCita.Completada && cita.estado !== EstadoCita.Cancelada">
+                                    <mat-icon>event_busy</mat-icon>
+                                    <span>No asistió</span>
+                                </button>
+                                <mat-divider></mat-divider>
+                                <button mat-menu-item (click)="deleteCita(cita)"
+                                    *ngIf="cita.estado !== EstadoCita.Completada">
+                                    <mat-icon color="warn">cancel</mat-icon>
+                                    <span>Cancelar cita</span>
+                                </button>
+                            </mat-menu>
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+                    <!-- No data row -->
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+                            <div class="no-data-message">
+                                <mat-icon>info</mat-icon>
+                                <p>No se encontraron citas</p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Paginador -->
+                <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 25, 50]"
+                    (page)="onPageChange($event)" showFirstLastButtons>
+                </mat-paginator>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

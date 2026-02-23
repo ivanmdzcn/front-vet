@@ -1,0 +1,260 @@
+<div class="reporte-container">
+  <!-- Loading spinner -->
+  <div class="loading-container" *ngIf="loading()">
+    <mat-spinner></mat-spinner>
+    <p>Cargando reporte...</p>
+  </div>
+
+  <!-- Error state -->
+  <div class="error-container" *ngIf="error() && !loading()">
+    <mat-card>
+      <mat-card-content>
+        <div class="error-content">
+          <mat-icon color="warn">error</mat-icon>
+          <h2>Error</h2>
+          <p>{{ error() }}</p>
+          <button mat-raised-button color="primary" (click)="volver()">
+            <mat-icon>arrow_back</mat-icon>
+            Volver
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Reporte content -->
+  <div *ngIf="!loading() && !error() && reporte()" class="reporte-content">
+    <!-- Botones de acción (no se imprimen) -->
+    <div class="acciones no-print">
+      <button mat-raised-button (click)="volver()">
+        <mat-icon>arrow_back</mat-icon>
+        Volver
+      </button>
+      <button mat-raised-button color="primary" (click)="imprimir()">
+        <mat-icon>print</mat-icon>
+        Imprimir
+      </button>
+      <button mat-raised-button color="accent" (click)="descargarPDF()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Descargar PDF
+      </button>
+    </div>
+
+    <!-- Contenido del reporte -->
+    <mat-card class="reporte-card">
+      <mat-card-content>
+        <!-- HEADER CON LOGO Y DATOS DE EMPRESA -->
+        <header class="reporte-header">
+          <div class="logo-container" *ngIf="reporte()!.empresa.logoUrl">
+            <img 
+              [src]="getLogoUrl()" 
+              alt="Logo de la empresa"
+              crossorigin="anonymous"
+              (error)="onImageError($event)">
+          </div>
+          <div class="empresa-info">
+            <h1>{{ reporte()!.empresa.nombreComercial || reporte()!.empresa.razonSocial }}</h1>
+            <p class="razon-social" *ngIf="reporte()!.empresa.nombreComercial">{{ reporte()!.empresa.razonSocial }}</p>
+            <p *ngIf="reporte()!.empresa.numeroIdentificacionFiscal">
+              <strong>NIT:</strong> {{ reporte()!.empresa.numeroIdentificacionFiscal }}
+            </p>
+            <p *ngIf="reporte()!.empresa.direccion">
+              {{ reporte()!.empresa.direccion }}
+              <span *ngIf="reporte()!.empresa.ciudad">, {{ reporte()!.empresa.ciudad }}</span>
+            </p>
+            <p *ngIf="reporte()!.empresa.telefono">
+              <strong>Tel:</strong> {{ reporte()!.empresa.telefono }}
+            </p>
+            <p *ngIf="reporte()!.empresa.email">{{ reporte()!.empresa.email }}</p>
+          </div>
+        </header>
+
+        <mat-divider></mat-divider>
+
+        <!-- INFORMACIÓN DE LA ORDEN -->
+        <section class="orden-info">
+          <h2>ORDEN DE PAGO</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <strong>Número:</strong> 
+              <span>{{ reporte()!.numeroOrden }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Fecha:</strong> 
+              <span>{{ reporte()!.fechaEmision | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="info-item">
+              <strong>Estado:</strong> 
+              <span [ngClass]="getEstadoClase(reporte()!.estado)">
+                {{ reporte()!.estado }}
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <mat-divider></mat-divider>
+
+        <!-- INFORMACIÓN DEL CLIENTE -->
+        <section class="cliente-info">
+          <h3><mat-icon>person</mat-icon> Cliente</h3>
+          <div class="info-grid-two">
+            <div class="info-item">
+              <strong>Nombre:</strong> {{ reporte()!.cliente.nombreCompleto }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.cliente.dpi">
+              <strong>DPI:</strong> {{ reporte()!.cliente.dpi }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.cliente.telefono">
+              <strong>Teléfono:</strong> {{ reporte()!.cliente.telefono }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.cliente.email">
+              <strong>Email:</strong> {{ reporte()!.cliente.email }}
+            </div>
+          </div>
+          <div class="info-item full-width" *ngIf="reporte()!.cliente.direccion">
+            <strong>Dirección:</strong> 
+            {{ reporte()!.cliente.direccion }}
+            <span *ngIf="reporte()!.cliente.ciudad">, {{ reporte()!.cliente.ciudad }}</span>
+          </div>
+        </section>
+
+        <mat-divider></mat-divider>
+
+        <!-- INFORMACIÓN DE LA MASCOTA -->
+        <section class="mascota-info" *ngIf="reporte()!.mascota">
+          <h3><mat-icon>pets</mat-icon> Mascota</h3>
+          <div class="info-grid-two">
+            <div class="info-item">
+              <strong>Nombre:</strong> {{ reporte()!.mascota?.nombre }}
+            </div>
+            <div class="info-item">
+              <strong>Especie:</strong> {{ reporte()!.mascota?.especie }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.mascota?.raza">
+              <strong>Raza:</strong> {{ reporte()!.mascota?.raza }}
+            </div>
+            <div class="info-item">
+              <strong>Sexo:</strong> {{ reporte()!.mascota?.sexo }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.mascota?.color">
+              <strong>Color:</strong> {{ reporte()!.mascota?.color }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.mascota?.peso">
+              <strong>Peso:</strong> {{ reporte()!.mascota?.peso }} kg
+            </div>
+          </div>
+        </section>
+
+        <mat-divider *ngIf="reporte()!.mascota"></mat-divider>
+
+        <!-- INFORMACIÓN DE LA CONSULTA -->
+        <section class="consulta-info" *ngIf="reporte()!.consulta">
+          <h3><mat-icon>medical_services</mat-icon> Consulta Veterinaria</h3>
+          <div class="info-grid-two">
+            <div class="info-item">
+              <strong>Fecha:</strong> {{ reporte()!.consulta?.fecha | date:'dd/MM/yyyy HH:mm' }}
+            </div>
+            <div class="info-item" *ngIf="reporte()!.veterinario">
+              <strong>Veterinario:</strong> {{ reporte()!.veterinario?.nombre }}
+            </div>
+          </div>
+          <div class="info-item full-width" *ngIf="reporte()!.consulta?.motivo">
+            <strong>Motivo:</strong> {{ reporte()!.consulta?.motivo }}
+          </div>
+          <div class="info-item full-width" *ngIf="reporte()!.consulta?.diagnostico">
+            <strong>Diagnóstico:</strong> {{ reporte()!.consulta?.diagnostico }}
+          </div>
+        </section>
+
+        <mat-divider *ngIf="reporte()!.consulta"></mat-divider>
+
+        <!-- DETALLE DE ITEMS -->
+        <section class="detalle-items">
+          <h3><mat-icon>list</mat-icon> Detalle de Items</h3>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ítem</th>
+                  <th>Tipo</th>
+                  <th class="text-center">Cantidad</th>
+                  <th class="text-right">Precio Unitario</th>
+                  <th class="text-right">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of agruparDetalles()">
+                  <td>{{ item.nombreItem }}</td>
+                  <td>
+                    <span [ngClass]="getTipoItemClase(item.tipoItem)">
+                      {{ item.tipoItem }}
+                    </span>
+                  </td>
+                  <td class="text-center">{{ item.cantidad }}</td>
+                  <td class="text-right">{{ item.precioUnitario | moneda }}</td>
+                  <td class="text-right">{{ item.subtotal | moneda }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- TOTALES -->
+        <section class="totales">
+          <div class="totales-grid">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>{{ reporte()!.subtotal | moneda }}</span>
+            </div>
+            <div class="total-row" *ngIf="reporte()!.descuento > 0">
+              <span>Descuento:</span>
+              <span class="descuento">-{{ reporte()!.descuento | moneda }}</span>
+            </div>
+            <div class="total-row" *ngIf="reporte()!.impuesto > 0">
+              <span>IVA:</span>
+              <span>{{ reporte()!.impuesto | moneda }}</span>
+            </div>
+            <div class="total-row total-final">
+              <span><strong>TOTAL:</strong></span>
+              <span><strong>{{ reporte()!.total | moneda }}</strong></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- OBSERVACIONES -->
+        <section class="observaciones" *ngIf="reporte()!.observaciones">
+          <mat-divider></mat-divider>
+          <h3><mat-icon>note</mat-icon> Observaciones</h3>
+          <p>{{ reporte()!.observaciones }}</p>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="reporte-footer">
+          <mat-divider></mat-divider>
+          <p *ngIf="reporte()!.empresa.piePaginaDocumentos">
+            {{ reporte()!.empresa.piePaginaDocumentos }}
+          </p>
+          <p *ngIf="reporte()!.empresa.mensajeAgradecimiento" class="mensaje-agradecimiento">
+            {{ reporte()!.empresa.mensajeAgradecimiento }}
+          </p>
+        </footer>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Botones de acción inferior (no se imprimen) -->
+    <div class="acciones-inferior no-print">
+      <button mat-raised-button (click)="volver()">
+        <mat-icon>arrow_back</mat-icon>
+        Volver
+      </button>
+      <button mat-raised-button color="primary" (click)="imprimir()">
+        <mat-icon>print</mat-icon>
+        Imprimir
+      </button>
+      <button mat-raised-button color="accent" (click)="descargarPDF()">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>

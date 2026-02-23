@@ -1,0 +1,124 @@
+<div class="reportes-container">
+  <mat-card>
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon">assessment</mat-icon>
+          <h1>Reportes</h1>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p class="subtitle">Seleccione el tipo de reporte que desea generar</p>
+
+      <!-- Sección de Reportes Disponibles -->
+      <div class="reportes-grid">
+        <!-- Reporte de Orden de Pago -->
+        <mat-card class="reporte-card">
+          <mat-card-header>
+            <mat-icon class="reporte-icon">receipt_long</mat-icon>
+            <div>
+              <mat-card-title>Reporte de Orden de Pago</mat-card-title>
+              <mat-card-subtitle>Generar reporte completo de una orden</mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Genere un reporte completo de una orden de pago específica, incluyendo 
+              datos del cliente, mascota, consulta, y detalle de todos los items.
+            </p>
+            
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>ID de Orden de Pago</mat-label>
+              <input 
+                matInput 
+                type="number"
+                [formControl]="ordenIdControl"
+                placeholder="Ej: 123"
+                (keyup.enter)="verReporteOrden()">
+              <mat-icon matPrefix>tag</mat-icon>
+              <mat-error *ngIf="ordenIdControl.hasError('required')">
+                El ID es requerido
+              </mat-error>
+              <mat-error *ngIf="ordenIdControl.hasError('min')">
+                El ID debe ser mayor a 0
+              </mat-error>
+            </mat-form-field>
+          </mat-card-content>
+          <mat-card-actions>
+            <button 
+              mat-raised-button 
+              color="primary"
+              [disabled]="!ordenIdControl.valid"
+              (click)="verReporteOrden()">
+              <mat-icon>visibility</mat-icon>
+              Ver Reporte
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Placeholder para futuros reportes -->
+        <mat-card class="reporte-card disabled">
+          <mat-card-header>
+            <mat-icon class="reporte-icon">bar_chart</mat-icon>
+            <div>
+              <mat-card-title>Reporte de Ventas</mat-card-title>
+              <mat-card-subtitle>Próximamente</mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Reporte de ventas por período con estadísticas y gráficos.
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button disabled>
+              Próximamente
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="reporte-card disabled">
+          <mat-card-header>
+            <mat-icon class="reporte-icon">calendar_today</mat-icon>
+            <div>
+              <mat-card-title>Reporte de Citas</mat-card-title>
+              <mat-card-subtitle>Próximamente</mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Reporte de citas agendadas, completadas y canceladas.
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button disabled>
+              Próximamente
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <mat-card class="reporte-card disabled">
+          <mat-card-header>
+            <mat-icon class="reporte-icon">inventory</mat-icon>
+            <div>
+              <mat-card-title>Reporte de Inventario</mat-card-title>
+              <mat-card-subtitle>Próximamente</mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <p>
+              Reporte de stock de productos, entradas y salidas.
+            </p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-raised-button disabled>
+              Próximamente
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

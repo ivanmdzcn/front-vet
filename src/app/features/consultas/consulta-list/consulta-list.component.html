@@ -1,0 +1,148 @@
+<div class="consulta-list-container">
+  <mat-card>
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon">medical_services</mat-icon>
+          <h1>Consultas Médicas</h1>
+        </div>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="openCreateDialog()">
+          <mat-icon>add</mat-icon>
+          Nueva Consulta
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading spinner -->
+      <div class="loading-container" *ngIf="loading()">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-container" *ngIf="!loading()">
+        <table mat-table [dataSource]="displayedConsultas()" class="consulta-table">
+          <!-- Fecha/Hora Column -->
+          <ng-container matColumnDef="fechaHora">
+            <th mat-header-cell *matHeaderCellDef>Fecha y Hora</th>
+            <td mat-cell *matCellDef="let consulta">
+              <div class="fecha-info">
+                <mat-icon>schedule</mat-icon>
+                {{ formatFechaHora(consulta.fechaHora) }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Mascota Column -->
+          <ng-container matColumnDef="mascota">
+            <th mat-header-cell *matHeaderCellDef>Mascota</th>
+            <td mat-cell *matCellDef="let consulta">
+              <div class="mascota-info">
+                <mat-icon>pets</mat-icon>
+                <div>
+                  <div class="nombre">{{ consulta.mascotaNombre }}</div>
+                  <div class="especie">{{ consulta.mascotaEspecie }}</div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Cliente Column -->
+          <ng-container matColumnDef="cliente">
+            <th mat-header-cell *matHeaderCellDef>Cliente</th>
+            <td mat-cell *matCellDef="let consulta">
+              <div class="cliente-info">
+                <mat-icon>person</mat-icon>
+                {{ consulta.clienteNombre }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Veterinario Column -->
+          <ng-container matColumnDef="veterinario">
+            <th mat-header-cell *matHeaderCellDef>Veterinario</th>
+            <td mat-cell *matCellDef="let consulta">
+              {{ consulta.veterinarioNombre }}
+            </td>
+          </ng-container>
+
+          <!-- Diagnóstico Column -->
+          <ng-container matColumnDef="diagnostico">
+            <th mat-header-cell *matHeaderCellDef>Diagnóstico</th>
+            <td mat-cell *matCellDef="let consulta">
+              <div class="diagnostico-preview">
+                {{ consulta.diagnostico }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Tipo Column -->
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <td mat-cell *matCellDef="let consulta">
+              <mat-chip [class]="consulta.esWalkIn ? 'walkin-chip' : 'cita-chip'">
+                {{ consulta.esWalkIn ? 'Walk-in' : 'Con Cita' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let consulta">
+              <button 
+                mat-icon-button 
+                color="primary"
+                (click)="openDetalleDialog(consulta)"
+                matTooltip="Ver detalle">
+                <mat-icon>medical_information</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                (click)="openEditDialog(consulta)"
+                matTooltip="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                color="warn"
+                (click)="deleteConsulta(consulta)"
+                matTooltip="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr 
+            mat-row 
+            *matRowDef="let row; columns: displayedColumns;"
+            class="consulta-row">
+          </tr>
+
+          <!-- No data row -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+              <div class="no-data-message">
+                <mat-icon>info</mat-icon>
+                <p>No se encontraron consultas</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <!-- Paginador -->
+        <mat-paginator 
+          [length]="totalItems"
+          [pageSize]="pageSize"
+          [pageSizeOptions]="[5, 10, 25, 50]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

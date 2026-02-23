@@ -1,0 +1,74 @@
+.sidebar {
+  height: 100%;
+  background-color: white;
+  border-right: 1px solid #e0e0e0;
+  transition: width 0.3s ease;
+  width: 250px;
+  overflow-x: hidden;
+}
+
+.sidebar.collapsed {
+  width: 64px;
+}
+
+.sidebar-content {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.menu-section {
+  padding: 16px 16px 8px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  letter-spacing: 0.5px;
+}
+
+.menu-item {
+  border-radius: 8px;
+  margin: 4px 8px;
+  transition: all 0.2s;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.menu-item.active {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.menu-item.active mat-icon {
+  color: #1976d2;
+}
+
+.hidden {
+  display: none;
+}
+
+mat-icon {
+  margin-right: 16px;
+}
+
+/* Scrollbar personalizado */
+.sidebar-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

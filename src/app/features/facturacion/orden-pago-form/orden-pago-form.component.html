@@ -1,0 +1,247 @@
+<div class="orden-form-container">
+  <h2 mat-dialog-title>
+    <mat-icon>add</mat-icon>
+    Nueva Orden de Pago
+  </h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="ordenForm">
+      <!-- Cliente -->
+      <div class="cliente-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cliente</mat-label>
+          <input 
+            matInput 
+            formControlName="clienteNombre"
+            [matAutocomplete]="autoCliente"
+            placeholder="Buscar cliente">
+          <mat-icon matPrefix>person</mat-icon>
+          <mat-error>Debe seleccionar un cliente</mat-error>
+        </mat-form-field>
+
+        <mat-autocomplete #autoCliente="matAutocomplete" [displayWith]="displayCliente" (optionSelected)="onClienteSelected($event.option.value)">
+          <mat-option 
+            *ngFor="let cliente of filteredClientes$ | async" 
+            [value]="cliente">
+            {{ cliente.nombreCompleto }}
+          </mat-option>
+        </mat-autocomplete>
+      </div>
+
+      <!-- Sección de Citas y Consultas -->
+      <div class="cita-consulta-section" *ngIf="ordenForm.get('clienteId')?.value">
+        <div class="checkbox-row">
+          <mat-checkbox 
+            [checked]="mostrarCitas()"
+            (change)="onCitaCheckChange($event.checked)">
+            Asociar a una Cita
+          </mat-checkbox>
+
+          <mat-checkbox 
+            [checked]="mostrarConsultas()"
+            (change)="onConsultaCheckChange($event.checked)">
+            Asociar a una Consulta
+          </mat-checkbox>
+        </div>
+
+        <!-- Selector de Cita -->
+        <mat-form-field appearance="outline" class="full-width" *ngIf="mostrarCitas()">
+          <mat-label>Seleccionar Cita</mat-label>
+          <mat-select formControlName="citaId">
+            <mat-option [value]="null">-- Ninguna --</mat-option>
+            <mat-option *ngFor="let cita of citas()" [value]="cita.id">
+              {{ cita.fechaHora | date:'dd/MM/yyyy HH:mm' }} - {{ cita.mascotaNombre }} - {{ cita.motivo }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>event</mat-icon>
+          <mat-hint *ngIf="citas().length === 0">No hay citas disponibles para este cliente</mat-hint>
+        </mat-form-field>
+
+        <!-- Selector de Consulta -->
+        <mat-form-field appearance="outline" class="full-width" *ngIf="mostrarConsultas()">
+          <mat-label>Seleccionar Consulta</mat-label>
+          <mat-select formControlName="consultaId">
+            <mat-option [value]="null">-- Ninguna --</mat-option>
+            <mat-option *ngFor="let consulta of consultas()" [value]="consulta.id">
+              {{ consulta.fechaHora | date:'dd/MM/yyyy HH:mm' }} - {{ consulta.mascotaNombre }} - {{ consulta.motivo }}
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>medical_services</mat-icon>
+          <mat-hint *ngIf="consultas().length === 0">No hay consultas disponibles para este cliente</mat-hint>
+        </mat-form-field>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Botones para agregar productos/servicios -->
+      <div class="add-buttons">
+        <button 
+          mat-raised-button 
+          type="button"
+          (click)="agregarProducto()">
+          <mat-icon>inventory_2</mat-icon>
+          Agregar Producto
+        </button>
+        <button 
+          mat-raised-button 
+          type="button"
+          (click)="agregarServicio()">
+          <mat-icon>medical_services</mat-icon>
+          Agregar Servicio
+        </button>
+      </div>
+
+      <!-- Tabla de detalles -->
+      <div class="detalles-section" *ngIf="detallesDataSource().length > 0">
+        <table mat-table [dataSource]="detallesDataSource()" [trackBy]="trackByDetalle" class="detalles-table">
+          <!-- Tipo Column -->
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <td mat-cell *matCellDef="let detalle">
+              <mat-icon>{{ detalle.get('tipo')?.value === 'producto' ? 'inventory_2' : 'medical_services' }}</mat-icon>
+            </td>
+          </ng-container>
+
+          <!-- Nombre Column -->
+          <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef>Producto/Servicio</th>
+            <td mat-cell *matCellDef="let detalle; let i = index">
+              <ng-container [ngSwitch]="detalle.get('tipo')?.value">
+                <!-- Productos -->
+                <mat-form-field appearance="outline" class="select-field" *ngSwitchCase="'producto'">
+                  <mat-select [formControl]="detalle.get('productoId')">
+                    <mat-option *ngFor="let producto of productos()" [value]="producto.id">
+                      {{ producto.nombre }} (Stock: {{ producto.stockActual }})
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                
+                <!-- Servicios -->
+                <mat-form-field appearance="outline" class="select-field" *ngSwitchCase="'servicio'">
+                  <mat-select [formControl]="detalle.get('servicioId')">
+                    <mat-option *ngFor="let servicio of servicios()" [value]="servicio.id">
+                      {{ servicio.nombre }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <!-- Cantidad Column -->
+          <ng-container matColumnDef="cantidad">
+            <th mat-header-cell *matHeaderCellDef>Cantidad</th>
+            <td mat-cell *matCellDef="let detalle">
+              <mat-form-field appearance="outline" class="cantidad-field">
+                <input 
+                  matInput 
+                  type="number" 
+                  [formControl]="detalle.get('cantidad')"
+                  min="1">
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <!-- Precio Column -->
+          <ng-container matColumnDef="precio">
+            <th mat-header-cell *matHeaderCellDef>Precio Unit.</th>
+            <td mat-cell *matCellDef="let detalle" class="precio-cell">
+              {{ detalle.get('precioUnitario')?.value | moneda }}
+            </td>
+          </ng-container>
+
+          <!-- Subtotal Column -->
+          <ng-container matColumnDef="subtotal">
+            <th mat-header-cell *matHeaderCellDef>Subtotal</th>
+            <td mat-cell *matCellDef="let detalle" class="subtotal-cell">
+              {{ detalle.get('subtotal')?.value | moneda }}
+            </td>
+          </ng-container>
+
+          <!-- Acciones Column -->
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let detalle; let i = index">
+              <button 
+                mat-icon-button 
+                color="warn" 
+                type="button"
+                (click)="eliminarDetalle(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Campos adicionales -->
+        <div class="campos-adicionales">
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Impuesto</mat-label>
+              <input matInput type="number" formControlName="impuesto" placeholder="0.00" step="0.01">
+              <span matTextPrefix>{{ simboloMoneda }}&nbsp;</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Descuento</mat-label>
+              <input matInput type="number" formControlName="descuento" placeholder="0.00" step="0.01">
+              <span matTextPrefix>{{ simboloMoneda }}&nbsp;</span>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Observaciones</mat-label>
+            <textarea matInput formControlName="observaciones" rows="2" placeholder="Notas adicionales (opcional)"></textarea>
+          </mat-form-field>
+        </div>
+
+        <!-- Total -->
+        <div class="total-section">
+          <div class="total-row">
+            <span class="total-label">Subtotal:</span>
+            <span class="total-value">{{ getSubtotal() | moneda }}</span>
+          </div>
+          <div class="total-row">
+            <span class="total-label">Impuesto:</span>
+            <span class="total-value">{{ ordenForm.get('impuesto')?.value || 0 | moneda }}</span>
+          </div>
+          <div class="total-row">
+            <span class="total-label">Descuento:</span>
+            <span class="total-value">-{{ ordenForm.get('descuento')?.value || 0 | moneda }}</span>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="total-row total-final">
+            <span class="total-label">TOTAL:</span>
+            <span class="total-amount">{{ getTotal() | moneda }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje si no hay detalles -->
+      <div class="no-detalles" *ngIf="detalles.length === 0">
+        <mat-icon>info</mat-icon>
+        <p>Agregue productos o servicios a la orden</p>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button 
+      mat-button 
+      (click)="onCancel()"
+      [disabled]="loading">
+      Cancelar
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      (click)="onSubmit()"
+      [disabled]="loading || ordenForm.invalid || detalles.length === 0">
+      <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+      <span *ngIf="!loading">Crear Orden</span>
+    </button>
+  </mat-dialog-actions>
+</div>

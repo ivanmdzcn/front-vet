@@ -1,0 +1,74 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'event' }}</mat-icon>
+  {{ isEditMode ? 'Editar Cita' : 'Nueva Cita' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="citaForm">
+    <div style="display: flex; gap: 16px; margin-top: 8px;">
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>Cliente</mat-label>
+        <input matInput formControlName="clienteId" [matAutocomplete]="autoC" placeholder="Buscar cliente">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-autocomplete #autoC="matAutocomplete" [displayWith]="displayClienteFn.bind(this)">
+          <mat-option *ngFor="let c of filteredClientes | async" [value]="c.id">
+            {{ c.nombreCompleto }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="flex: 1;">
+        <mat-label>Mascota</mat-label>
+        <input matInput formControlName="mascotaId" [matAutocomplete]="autoM" placeholder="Buscar mascota">
+        <mat-icon matPrefix>pets</mat-icon>
+        <mat-autocomplete #autoM="matAutocomplete" [displayWith]="displayMascotaFn.bind(this)">
+          <mat-option *ngFor="let m of filteredMascotas | async" [value]="m.id">
+            {{ m.nombre }} ({{ m.especie }})
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width" style="width: 100%;">
+      <mat-label>Fecha y Hora de la Cita</mat-label>
+      <input matInput type="datetime-local" formControlName="fechaHora">
+      <mat-icon matPrefix>schedule</mat-icon>
+      <mat-error *ngIf="citaForm.get('fechaHora')?.invalid">{{ getErrorMessage('fechaHora') }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" style="width: 100%;">
+      <mat-label>Motivo de la Cita</mat-label>
+      <input matInput formControlName="motivo" placeholder="Ej: Vacunación">
+      <mat-icon matPrefix>description</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" style="width: 100%;" *ngIf="isEditMode">
+      <mat-label>Estado</mat-label>
+      <mat-select formControlName="estado">
+        <mat-option *ngFor="let opt of estadoOptions" [value]="opt.value">
+          {{ opt.label }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matPrefix>info</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width" style="width: 100%;">
+      <mat-label>Observaciones</mat-label>
+      <textarea matInput formControlName="observaciones" rows="3"></textarea>
+      <mat-icon matPrefix>notes</mat-icon>
+    </mat-form-field>
+
+    <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px; color: #166534;" *ngIf="currentUser">
+      <mat-icon>medical_services</mat-icon>
+      <span>Veterinario: <strong>{{ currentUser.nombreCompleto }}</strong></span>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="loading">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="loading || citaForm.invalid">
+    <mat-spinner diameter="20" *ngIf="loading" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+    {{ isEditMode ? 'Actualizar' : 'Guardar' }}
+  </button>
+</mat-dialog-actions>

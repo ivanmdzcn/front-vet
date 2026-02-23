@@ -1,0 +1,471 @@
+<h2 mat-dialog-title class="dialog-header">
+  <div class="title-content">
+    <mat-icon class="title-icon">medical_information</mat-icon>
+    <div class="title-text">
+      <h3>Historial Médico</h3>
+      <p class="subtitle" *ngIf="historial()">{{ historial()!.mascota.nombre }} - {{ historial()!.mascota.especie }}</p>
+    </div>
+  </div>
+  <button mat-icon-button (click)="cerrar()" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+</h2>
+
+<mat-dialog-content>
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading()">
+    <mat-spinner></mat-spinner>
+    <p>Cargando historial médico...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error()">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error() }}</p>
+    <button mat-raised-button color="primary" (click)="cargarHistorial()">
+      <mat-icon>refresh</mat-icon>
+      Reintentar
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading() && !error() && historial()" class="historial-content">
+    <!-- Info de la Mascota -->
+    <mat-card class="mascota-info-card">
+      <mat-card-content>
+        <div class="mascota-header">
+          <div class="mascota-details">
+            <mat-icon class="pet-icon">pets</mat-icon>
+            <div class="details">
+              <h3>{{ historial()!.mascota.nombre }}</h3>
+              <p>
+                <mat-chip>{{ historial()!.mascota.especie }}</mat-chip>
+                <span *ngIf="historial()!.mascota.raza"> - {{ historial()!.mascota.raza }}</span>
+                <span *ngIf="historial()!.mascota.edadAnios !== null"> | {{ historial()!.mascota.edadAnios }} años</span>
+              </p>
+              <p class="cliente">
+                <mat-icon>person</mat-icon>
+                Dueño: {{ historial()!.mascota.clienteNombre }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabs para cada sección del historial -->
+    <mat-tab-group class="historial-tabs" animationDuration="300ms">
+      <!-- TAB: VACUNAS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">vaccines</mat-icon>
+          Vacunas
+          <mat-chip class="count-chip">{{ historial()!.vacunas.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarVacuna()">
+              <mat-icon>add</mat-icon>
+              Agregar Vacuna
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.vacunas.length === 0" class="empty-state">
+            <mat-icon>vaccines</mat-icon>
+            <p>No hay vacunas registradas</p>
+          </div>
+
+          <div *ngIf="historial()!.vacunas.length > 0" class="records-list">
+            <mat-card *ngFor="let vacuna of historial()!.vacunas" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon>vaccines</mat-icon>
+                    <h4>{{ vacuna.nombreVacuna }}</h4>
+                    <mat-chip *ngIf="vacuna.tipoVacuna">{{ vacuna.tipoVacuna }}</mat-chip>
+                  </div>
+                  <div class="record-actions">
+                    <button mat-icon-button (click)="editarVacuna(vacuna)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarVacuna(vacuna)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p><strong>Fecha Aplicación:</strong> {{ formatFecha(vacuna.fechaAplicacion) }}</p>
+                  <p *ngIf="vacuna.proximaDosis">
+                    <strong>Próxima Dosis:</strong> {{ formatFecha(vacuna.proximaDosis) }}
+                  </p>
+                  <p *ngIf="vacuna.fabricante"><strong>Fabricante:</strong> {{ vacuna.fabricante }}</p>
+                  <p *ngIf="vacuna.lote"><strong>Lote:</strong> {{ vacuna.lote }}</p>
+                  <p><strong>Veterinario:</strong> {{ vacuna.veterinarioNombre }}</p>
+                  <p *ngIf="vacuna.observaciones"><strong>Observaciones:</strong> {{ vacuna.observaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: DESPARASITACIONES -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">bug_report</mat-icon>
+          Desparasitaciones
+          <mat-chip class="count-chip">{{ historial()!.desparasitaciones.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarDesparasitacion()">
+              <mat-icon>add</mat-icon>
+              Agregar Desparasitación
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.desparasitaciones.length === 0" class="empty-state">
+            <mat-icon>bug_report</mat-icon>
+            <p>No hay desparasitaciones registradas</p>
+          </div>
+
+          <div *ngIf="historial()!.desparasitaciones.length > 0" class="records-list">
+            <mat-card *ngFor="let desp of historial()!.desparasitaciones" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon>bug_report</mat-icon>
+                    <h4>{{ desp.producto }}</h4>
+                    <mat-chip [class]="'tipo-chip ' + desp.tipo.toLowerCase()">
+                      {{ desp.tipo }}
+                    </mat-chip>
+                  </div>
+                  <div class="record-actions">
+                    <button mat-icon-button (click)="editarDesparasitacion(desp)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarDesparasitacion(desp)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p><strong>Fecha Aplicación:</strong> {{ formatFecha(desp.fechaAplicacion) }}</p>
+                  <p *ngIf="desp.proximaDosis">
+                    <strong>Próxima Dosis:</strong> {{ formatFecha(desp.proximaDosis) }}
+                  </p>
+                  <p *ngIf="desp.dosis"><strong>Dosis:</strong> {{ desp.dosis }} {{ desp.unidad || '' }}</p>
+                  <p><strong>Veterinario:</strong> {{ desp.veterinarioNombre }}</p>
+                  <p *ngIf="desp.observaciones"><strong>Observaciones:</strong> {{ desp.observaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: EXÁMENES DE LABORATORIO -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">biotech</mat-icon>
+          Exámenes
+          <mat-chip class="count-chip">{{ historial()!.examenesLaboratorio.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarExamen()">
+              <mat-icon>add</mat-icon>
+              Agregar Examen
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.examenesLaboratorio.length === 0" class="empty-state">
+            <mat-icon>biotech</mat-icon>
+            <p>No hay exámenes registrados</p>
+          </div>
+
+          <div *ngIf="historial()!.examenesLaboratorio.length > 0" class="records-list">
+            <mat-card *ngFor="let examen of historial()!.examenesLaboratorio" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon>biotech</mat-icon>
+                    <h4>{{ examen.tipoExamen }}</h4>
+                  </div>
+                  <div class="record-actions">
+                    <button 
+                      mat-icon-button 
+                      *ngIf="examen.archivoUrl"
+                      (click)="descargarArchivo(examen.archivoUrl)" 
+                      matTooltip="Ver archivo"
+                      color="primary">
+                      <mat-icon>download</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="editarExamen(examen)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarExamen(examen)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p *ngIf="examen.descripcion"><strong>Descripción:</strong> {{ examen.descripcion }}</p>
+                  <p><strong>Fecha Solicitud:</strong> {{ formatFecha(examen.fechaSolicitud) }}</p>
+                  <p *ngIf="examen.fechaResultado">
+                    <strong>Fecha Resultado:</strong> {{ formatFecha(examen.fechaResultado) }}
+                  </p>
+                  <p *ngIf="examen.analista"><strong>Analista:</strong> {{ examen.analista }}</p>
+                  <p *ngIf="examen.resultado"><strong>Resultados:</strong></p>
+                  <div class="resultados-box" *ngIf="examen.resultado">{{ examen.resultado }}</div>
+                  <p><strong>Veterinario:</strong> {{ examen.veterinarioNombre }}</p>
+                  <p *ngIf="examen.observaciones"><strong>Observaciones:</strong> {{ examen.observaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: CIRUGÍAS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">healing</mat-icon>
+          Cirugías
+          <mat-chip class="count-chip">{{ historial()!.cirugias.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarCirugia()">
+              <mat-icon>add</mat-icon>
+              Agregar Cirugía
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.cirugias.length === 0" class="empty-state">
+            <mat-icon>healing</mat-icon>
+            <p>No hay cirugías registradas</p>
+          </div>
+
+          <div *ngIf="historial()!.cirugias.length > 0" class="records-list">
+            <mat-card *ngFor="let cirugia of historial()!.cirugias" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon>healing</mat-icon>
+                    <h4>{{ cirugia.tipoCirugia }}</h4>
+                  </div>
+                  <div class="record-actions">
+                    <button mat-icon-button (click)="editarCirugia(cirugia)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarCirugia(cirugia)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p><strong>Fecha:</strong> {{ formatFecha(cirugia.fechaCirugia) }}</p>
+                  <p *ngIf="cirugia.duracionMinutos">
+                    <strong>Duración:</strong> {{ cirugia.duracionMinutos }} minutos
+                  </p>
+                  <p *ngIf="cirugia.anestesiaUtilizada"><strong>Anestesia:</strong> {{ cirugia.anestesiaUtilizada }}</p>
+                  <p *ngIf="cirugia.preDiagnostico"><strong>Pre-Diagnóstico:</strong> {{ cirugia.preDiagnostico }}</p>
+                  <div *ngIf="cirugia.hallazgosIntraOperatorios">
+                    <p><strong>Hallazgos Intraoperatorios:</strong></p>
+                    <div class="resultados-box">{{ cirugia.hallazgosIntraOperatorios }}</div>
+                  </div>
+                  <p *ngIf="cirugia.complicaciones">
+                    <strong>Complicaciones:</strong>
+                    <span class="text-warn">{{ cirugia.complicaciones }}</span>
+                  </p>
+                  <p><strong>Veterinario:</strong> {{ cirugia.veterinarioNombre }}</p>
+                  <p *ngIf="cirugia.observaciones"><strong>Observaciones:</strong> {{ cirugia.observaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: ALERGIAS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">warning</mat-icon>
+          Alergias
+          <mat-chip class="count-chip">{{ historial()!.alergias.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarAlergia()">
+              <mat-icon>add</mat-icon>
+              Agregar Alergia
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.alergias.length === 0" class="empty-state">
+            <mat-icon>warning</mat-icon>
+            <p>No hay alergias registradas</p>
+          </div>
+
+          <div *ngIf="historial()!.alergias.length > 0" class="records-list">
+            <mat-card *ngFor="let alergia of historial()!.alergias" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon color="warn">warning</mat-icon>
+                    <h4>{{ alergia.alergia }}</h4>
+                    <mat-chip *ngIf="alergia.severidad" [class]="getSeveridadClass(alergia.severidad)">
+                      {{ alergia.severidad }}
+                    </mat-chip>
+                  </div>
+                  <div class="record-actions">
+                    <button mat-icon-button (click)="editarAlergia(alergia)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarAlergia(alergia)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p *ngIf="alergia.tipo"><strong>Tipo:</strong> {{ alergia.tipo }}</p>
+                  <p><strong>Fecha Diagnóstico:</strong> {{ formatFecha(alergia.fechaDiagnostico) }}</p>
+                  <p *ngIf="alergia.reaccion"><strong>Reacción:</strong> {{ alergia.reaccion }}</p>
+                  <p><strong>Veterinario:</strong> {{ alergia.veterinarioNombre }}</p>
+                  <p *ngIf="alergia.observaciones"><strong>Observaciones:</strong> {{ alergia.observaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: ANTECEDENTES PATOLÓGICOS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">medical_services</mat-icon>
+          Antecedentes
+          <mat-chip class="count-chip">{{ historial()!.antecedentesPatologicos.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarAntecedente()">
+              <mat-icon>add</mat-icon>
+              Agregar Antecedente
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.antecedentesPatologicos.length === 0" class="empty-state">
+            <mat-icon>medical_services</mat-icon>
+            <p>No hay antecedentes patológicos registrados</p>
+          </div>
+
+          <div *ngIf="historial()!.antecedentesPatologicos.length > 0" class="records-list">
+            <mat-card *ngFor="let antecedente of historial()!.antecedentesPatologicos" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon>medical_services</mat-icon>
+                    <h4>{{ antecedente.enfermedad }}</h4>
+                    <mat-chip [class]="getEstadoClass(antecedente.estado)">
+                      {{ antecedente.estado }}
+                    </mat-chip>
+                  </div>
+                  <div class="record-actions">
+                    <button mat-icon-button (click)="editarAntecedente(antecedente)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarAntecedente(antecedente)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p><strong>Fecha Diagnóstico:</strong> {{ formatFecha(antecedente.fechaDiagnostico) }}</p>
+                  <p><strong>Descripción:</strong></p>
+                  <div class="resultados-box">{{ antecedente.descripcion }}</div>
+                  <p *ngIf="antecedente.medicamentosActuales">
+                    <strong>Medicamentos Actuales:</strong> {{ antecedente.medicamentosActuales }}
+                  </p>
+                  <p *ngIf="antecedente.frecuenciaVisitasRecomendada">
+                    <strong>Frecuencia de Visitas:</strong> {{ antecedente.frecuenciaVisitasRecomendada }}
+                  </p>
+                  <p><strong>Veterinario:</strong> {{ antecedente.veterinarioNombre }}</p>
+                  <p *ngIf="antecedente.observaciones"><strong>Observaciones:</strong> {{ antecedente.observaciones }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- TAB: RECETAS/MEDICAMENTOS -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon class="tab-icon">medication</mat-icon>
+          Medicamentos
+          <mat-chip class="count-chip">{{ historial()!.recetasMedicamentos.length }}</mat-chip>
+        </ng-template>
+        
+        <div class="tab-content">
+          <div class="tab-header">
+            <button mat-raised-button color="primary" (click)="agregarReceta()">
+              <mat-icon>add</mat-icon>
+              Agregar Receta
+            </button>
+          </div>
+
+          <div *ngIf="historial()!.recetasMedicamentos.length === 0" class="empty-state">
+            <mat-icon>medication</mat-icon>
+            <p>No hay medicamentos recetados</p>
+          </div>
+
+          <div *ngIf="historial()!.recetasMedicamentos.length > 0" class="records-list">
+            <mat-card *ngFor="let receta of historial()!.recetasMedicamentos" class="record-card">
+              <mat-card-content>
+                <div class="record-header">
+                  <div class="record-title">
+                    <mat-icon>medication</mat-icon>
+                    <h4>{{ receta.medicamento }}</h4>
+                    <mat-chip>{{ receta.viaAdministracion }}</mat-chip>
+                  </div>
+                  <div class="record-actions">
+                    <button mat-icon-button (click)="editarReceta(receta)" matTooltip="Editar">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="eliminarReceta(receta)" matTooltip="Eliminar">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="record-details">
+                  <p><strong>Dosis:</strong> {{ receta.dosis }} {{ receta.unidad }}</p>
+                  <p><strong>Frecuencia:</strong> {{ receta.frecuencia }}</p>
+                  <p><strong>Duración:</strong> {{ receta.duracionDias }} días</p>
+                  <p><strong>Fecha Prescripción:</strong> {{ formatFecha(receta.fechaPrescripcion) }}</p>
+                  <p *ngIf="receta.indicaciones"><strong>Indicaciones:</strong> {{ receta.indicaciones }}</p>
+                  <p *ngIf="receta.contraindicaciones">
+                    <strong>Contraindicaciones:</strong>
+                    <span class="text-warn">{{ receta.contraindicaciones }}</span>
+                  </p>
+                  <p><strong>Consulta ID:</strong> #{{ receta.consultaId }}</p>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cerrar()">Cerrar</button>
+</mat-dialog-actions>

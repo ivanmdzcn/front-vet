@@ -1,0 +1,423 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px !important;
+  margin: 0 !important;
+  border-bottom: 1px solid #e0e0e0;
+
+  .title-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .title-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      color: #1976d2;
+    }
+
+    .title-text {
+      h3 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 500;
+      }
+
+      .subtitle {
+        margin: 4px 0 0 0;
+        color: #666;
+        font-size: 14px;
+      }
+    }
+  }
+
+  .close-button {
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+}
+
+mat-dialog-content {
+  max-height: 80vh;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #666;
+    margin: 8px 0;
+  }
+
+  button {
+    margin-top: 16px;
+  }
+}
+
+.historial-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mascota-info-card {
+  margin: 16px 24px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+
+  .mascota-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .mascota-details {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .pet-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+      }
+
+      .details {
+        h3 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 500;
+        }
+
+        p {
+          margin: 8px 0 0 0;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 14px;
+
+          mat-chip {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            height: 24px;
+            font-size: 12px;
+          }
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+            vertical-align: middle;
+          }
+        }
+
+        .cliente {
+          margin-top: 4px;
+        }
+      }
+    }
+  }
+}
+
+.historial-tabs {
+  flex: 1;
+  overflow: hidden;
+  margin: 16px 24px 24px;
+
+  ::ng-deep {
+    .mat-mdc-tab-body-wrapper {
+      height: 100%;
+      overflow: auto;
+    }
+
+    .mat-mdc-tab-labels {
+      gap: 8px;
+    }
+
+    .mat-mdc-tab {
+      height: 64px;
+      padding: 0 24px;
+
+      .tab-icon {
+        margin-right: 8px;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .count-chip {
+        margin-left: 8px;
+        background: #e0e0e0;
+        color: #333;
+        height: 20px;
+        padding: 0 8px;
+        font-size: 11px;
+        min-height: 20px;
+      }
+    }
+
+    .mat-mdc-tab.mdc-tab--active {
+      .count-chip {
+        background: #1976d2;
+        color: white;
+      }
+    }
+  }
+}
+
+.tab-content {
+  padding: 24px;
+  min-height: 400px;
+
+  .tab-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 24px;
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  color: #999;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .record-card {
+    border: 1px solid #e0e0e0;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    &.inactive {
+      opacity: 0.6;
+      background: #f5f5f5;
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+
+      .record-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+          color: #1976d2;
+        }
+
+        h4 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          flex: 1;
+        }
+
+        mat-chip {
+          height: 24px;
+          font-size: 12px;
+        }
+      }
+
+      .record-actions {
+        display: flex;
+        gap: 4px;
+      }
+    }
+
+    .record-details {
+      padding-left: 36px;
+
+      p {
+        margin: 8px 0;
+        line-height: 1.6;
+
+        strong {
+          color: #666;
+          font-weight: 500;
+        }
+      }
+
+      .resultados-box {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        margin: 8px 0;
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .text-warn {
+        color: #d32f2f;
+      }
+    }
+  }
+}
+
+// Chips de tipos
+.tipo-chip {
+  &.interna {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+
+  &.externa {
+    background: #fff3e0;
+    color: #f57c00;
+  }
+
+  &.ambas {
+    background: #f3e5f5;
+    color: #7b1fa2;
+  }
+}
+
+// Chips de severidad
+.severidad-leve {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.severidad-moderada {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.severidad-severa {
+  background: #ffe0b2;
+  color: #e65100;
+}
+
+.severidad-critica {
+  background: #ffebee;
+  color: #c62828;
+}
+
+// Chips de estado
+.estado-activo {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.estado-controlado {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.estado-remision {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.estado-curado {
+  background: #f1f8e9;
+  color: #558b2f;
+}
+
+.inactive-chip {
+  background: #757575;
+  color: white;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  margin: 0 !important;
+  border-top: 1px solid #e0e0e0;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .mascota-info-card {
+    .mascota-header {
+      .mascota-details {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  }
+
+  .historial-tabs {
+    ::ng-deep {
+      .mat-mdc-tab {
+        padding: 0 12px;
+        min-width: 80px;
+
+        .mdc-tab__text-label {
+          font-size: 12px;
+        }
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 16px;
+  }
+
+  .records-list {
+    .record-card {
+      .record-header {
+        flex-direction: column;
+        gap: 12px;
+
+        .record-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+      }
+
+      .record-details {
+        padding-left: 0;
+      }
+    }
+  }
+}

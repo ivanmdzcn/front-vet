@@ -1,0 +1,158 @@
+.orden-list-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+mat-card {
+  margin-bottom: 20px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 16px 0;
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  .title-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: #1976d2;
+  }
+}
+
+.search-field {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.orden-table {
+  width: 100%;
+  background: white;
+
+  th {
+    font-weight: 600;
+    color: #424242;
+  }
+
+  .orden-id {
+    font-weight: 600;
+    color: #1976d2;
+  }
+
+  .cliente-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      color: #757575;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .total-cell {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2e7d32;
+  }
+}
+
+mat-chip-set {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.chip-pendiente {
+  background-color: #fff3e0 !important;
+  color: #e65100 !important;
+}
+
+.chip-confirmada {
+  background-color: #c8e6c9 !important;
+  color: #2e7d32 !important;
+}
+
+.chip-anulada {
+  background-color: #ffcdd2 !important;
+  color: #c62828 !important;
+}
+
+.no-data-cell {
+  text-align: center !important;
+  padding: 40px !important;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #757575;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+  }
+}
+
+mat-paginator {
+  background: transparent;
+  margin-top: 16px;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .orden-list-container {
+    padding: 10px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .table-container {
+    font-size: 14px;
+  }
+}

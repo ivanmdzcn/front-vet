@@ -1,0 +1,17 @@
+services:
+  front-vet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    image: front-vet
+    container_name: front_veterinaria_cnt
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    networks:
+      - veterinaria_network
+
+networks:
+  veterinaria_network:
+    external: true

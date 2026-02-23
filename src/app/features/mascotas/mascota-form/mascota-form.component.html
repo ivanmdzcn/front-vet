@@ -1,0 +1,249 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'pets' }}</mat-icon>
+  {{ isEditMode ? 'Editar Mascota' : 'Nueva Mascota' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="mascotaForm">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre de la mascota</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Max">
+        <mat-icon matPrefix>pets</mat-icon>
+        <mat-error *ngIf="mascotaForm.get('nombre')?.invalid">
+          {{ getErrorMessage('nombre') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Especie</mat-label>
+        <input 
+          matInput 
+          formControlName="especie" 
+          placeholder="Ej: Perro"
+          [matAutocomplete]="autoEspecie">
+        <mat-icon matPrefix>category</mat-icon>
+        <mat-autocomplete #autoEspecie="matAutocomplete">
+          <mat-option *ngFor="let especie of especiesComunes" [value]="especie">
+            {{ especie }}
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="mascotaForm.get('especie')?.invalid">
+          {{ getErrorMessage('especie') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Raza</mat-label>
+        <input matInput formControlName="raza" placeholder="Ej: Labrador">
+        <mat-icon matPrefix>info</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Sexo</mat-label>
+        <mat-select formControlName="sexo">
+          <mat-option *ngFor="let sexo of sexoOptions" [value]="sexo.value">
+            <mat-icon [class]="sexo.value === 'Macho' ? 'male-icon' : 'female-icon'">
+              {{ sexo.value === 'Macho' ? 'male' : 'female' }}
+            </mat-icon>
+            {{ sexo.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Color</mat-label>
+        <input matInput formControlName="color" placeholder="Ej: Café">
+        <mat-icon matPrefix>palette</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha de Nacimiento</mat-label>
+        <input 
+          matInput 
+          [matDatepicker]="picker" 
+          formControlName="fechaNacimiento">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Peso (kg)</mat-label>
+        <input matInput type="number" formControlName="pesoKg" step="0.1">
+        <mat-icon matPrefix>monitor_weight</mat-icon>
+        <span matSuffix>kg</span>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Dueño</mat-label>
+        <input 
+          matInput 
+          formControlName="clienteId"
+          [matAutocomplete]="autoCliente"
+          placeholder="Buscar por nombre...">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-autocomplete 
+          #autoCliente="matAutocomplete"
+          [displayWith]="displayClienteFn.bind(this)">
+          <mat-option *ngFor="let cliente of filteredClientes | async" [value]="cliente.id">
+            <span>{{ cliente.nombreCompleto }}</span> | 
+            <small>{{ cliente.telefono }}</small>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="mascotaForm.get('clienteId')?.invalid">
+          {{ getErrorMessage('clienteId') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Observaciones</mat-label>
+      <textarea matInput formControlName="observaciones" rows="2"></textarea>
+    </mat-form-field>
+
+    <!-- Sección de Foto -->
+    <mat-divider style="margin: 20px 0;"></mat-divider>
+    <h3 style="margin: 0 0 15px 0; color: #666;">
+      <mat-icon style="vertical-align: middle; margin-right: 8px;">photo_camera</mat-icon>
+      Fotografía
+    </h3>
+
+    <div class="photo-section">
+      <div class="photo-upload-options">
+        <mat-button-toggle-group [(ngModel)]="uploadMethod" [ngModelOptions]="{standalone: true}">
+          <mat-button-toggle value="url">URL</mat-button-toggle>
+          <mat-button-toggle value="file">Subir Archivo</mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <div *ngIf="uploadMethod === 'url'" class="url-input">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>URL de la foto</mat-label>
+          <input 
+            matInput 
+            formControlName="fotoUrl" 
+            placeholder="https://ejemplo.com/foto.jpg"
+            (input)="onPhotoUrlChange($any($event.target).value)">
+          <mat-icon matPrefix>link</mat-icon>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="uploadMethod === 'file'" class="file-input">
+        <input 
+          type="file" 
+          #fileInput 
+          accept="image/*" 
+          (change)="onFileSelected($event)"
+          style="display: none;">
+        <button 
+          mat-raised-button 
+          type="button"
+          (click)="fileInput.click()">
+          <mat-icon>upload</mat-icon>
+          Seleccionar Imagen
+        </button>
+        <small style="display: block; margin-top: 8px; color: #666;">
+          Máximo 2MB. Formatos: JPG, PNG, GIF
+        </small>
+      </div>
+
+      <div *ngIf="photoPreview" class="photo-preview">
+        <mat-card>
+          <img [src]="photoPreview" alt="Vista previa">
+          <button 
+            mat-icon-button 
+            color="warn"
+            type="button"
+            class="remove-photo-btn"
+            (click)="removePhoto()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- Sección de Identificación y Registro -->
+    <mat-divider style="margin: 25px 0 20px 0;"></mat-divider>
+    <h3 style="margin: 0 0 15px 0; color: #666;">
+      <mat-icon style="vertical-align: middle; margin-right: 8px;">badge</mat-icon>
+      Identificación y Registro
+    </h3>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Microchip</mat-label>
+        <input matInput formControlName="microchip" placeholder="Número de microchip">
+        <mat-icon matPrefix>qr_code_2</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Número de Pedigree</mat-label>
+        <input matInput formControlName="numeroPedigree" placeholder="Número de pedigree">
+        <mat-icon matPrefix>description</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <div class="checkbox-container">
+        <mat-checkbox formControlName="tienePedigree">
+          <mat-icon class="checkbox-icon">verified</mat-icon>
+          Tiene Pedigree
+        </mat-checkbox>
+      </div>
+    </div>
+
+    <!-- Sección de Estado Físico y Reproductivo -->
+    <mat-divider style="margin: 25px 0 20px 0;"></mat-divider>
+    <h3 style="margin: 0 0 15px 0; color: #666;">
+      <mat-icon style="vertical-align: middle; margin-right: 8px;">medical_services</mat-icon>
+      Estado Físico y Reproductivo
+    </h3>
+
+    <div class="form-row">
+      <div class="checkbox-container">
+        <mat-checkbox formControlName="esterilizado">
+          <mat-icon class="checkbox-icon">healing</mat-icon>
+          Esterilizado/Castrado
+        </mat-checkbox>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Fecha de Esterilización</mat-label>
+        <input 
+          matInput 
+          [matDatepicker]="pickerEsterilizacion" 
+          formControlName="fechaEsterilizacion">
+        <mat-datepicker-toggle matSuffix [for]="pickerEsterilizacion"></mat-datepicker-toggle>
+        <mat-datepicker #pickerEsterilizacion></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Señas Particulares</mat-label>
+      <textarea 
+        matInput 
+        formControlName="senasParticulares" 
+        rows="2"
+        placeholder="Marcas, cicatrices, características distintivas..."></textarea>
+      <mat-icon matPrefix>visibility</mat-icon>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()" [disabled]="loading">Cancelar</button>
+  <button 
+    mat-raised-button 
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="loading || mascotaForm.invalid">
+    <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+    <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Guardar' }}</span>
+  </button>
+</mat-dialog-actions>

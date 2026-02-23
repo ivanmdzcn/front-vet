@@ -1,0 +1,94 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'person_add' }}</mat-icon>
+  {{ isEditMode ? 'Editar Cliente' : 'Nuevo Cliente' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="clienteForm">
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" placeholder="Ej: Juan">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-error *ngIf="clienteForm.get('nombre')?.invalid">
+          {{ getErrorMessage('nombre') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Apellido</mat-label>
+        <input matInput formControlName="apellido" placeholder="Ej: Pérez García">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-error *ngIf="clienteForm.get('apellido')?.invalid">
+          {{ getErrorMessage('apellido') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="telefono" placeholder="Ej: 5512-3456">
+        <mat-icon matPrefix>phone</mat-icon>
+        <mat-error *ngIf="clienteForm.get('telefono')?.invalid">
+          {{ getErrorMessage('telefono') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" placeholder="Ej: cliente@email.com">
+        <mat-icon matPrefix>email</mat-icon>
+        <mat-error *ngIf="clienteForm.get('email')?.invalid">
+          {{ getErrorMessage('email') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Dirección</mat-label>
+      <input matInput formControlName="direccion" placeholder="Ej: Zona 10, Ciudad de Guatemala">
+      <mat-icon matPrefix>home</mat-icon>
+      <mat-error *ngIf="clienteForm.get('direccion')?.invalid">
+        {{ getErrorMessage('direccion') }}
+      </mat-error>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Ciudad</mat-label>
+        <input matInput formControlName="ciudad" placeholder="Ej: Guatemala">
+        <mat-icon matPrefix>location_city</mat-icon>
+        <mat-error *ngIf="clienteForm.get('ciudad')?.invalid">
+          {{ getErrorMessage('ciudad') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>DPI</mat-label>
+        <input matInput formControlName="dpi" placeholder="Ej: 2501 12345 0101">
+        <mat-icon matPrefix>badge</mat-icon>
+        <mat-error *ngIf="clienteForm.get('dpi')?.invalid">
+          {{ getErrorMessage('dpi') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button 
+    mat-button 
+    (click)="onCancel()"
+    [disabled]="loading">
+    Cancelar
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary"
+    (click)="onSubmit()"
+    [disabled]="loading || clienteForm.invalid">
+    <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+    <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Guardar' }}</span>
+  </button>
+</mat-dialog-actions>

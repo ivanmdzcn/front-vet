@@ -1,0 +1,315 @@
+<div class="configuracion-container">
+  <mat-card>
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon class="title-icon">settings</mat-icon>
+          <h1>{{ esNuevo ? 'Configuración Inicial de Empresa' : 'Configuración de Empresa' }}</h1>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Loading spinner -->
+      <div class="loading-container" *ngIf="loading()">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <!-- Formulario -->
+      <form [formGroup]="configuracionForm" (ngSubmit)="onSubmit()" *ngIf="!loading()">
+        <mat-tab-group>
+          <!-- Tab: Información General -->
+          <mat-tab label="Información General">
+            <div class="tab-content">
+              <div class="form-section">
+                <h3>Datos de la Empresa</h3>
+                
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Razón Social *</mat-label>
+                  <input matInput formControlName="razonSocial" placeholder="Veterinaria San Francisco S.A.">
+                  <mat-icon matPrefix>business</mat-icon>
+                  <mat-error>La razón social es requerida (máx. 200 caracteres)</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nombre Comercial</mat-label>
+                  <input matInput formControlName="nombreComercial" placeholder="VetCare">
+                  <mat-icon matPrefix>storefront</mat-icon>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>NIT / RFC</mat-label>
+                  <input matInput formControlName="numeroIdentificacionFiscal" placeholder="12345678-9">
+                  <mat-icon matPrefix>badge</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Ubicación -->
+          <mat-tab label="Ubicación">
+            <div class="tab-content">
+              <div class="form-section">
+                <h3>Dirección</h3>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Dirección *</mat-label>
+                  <textarea matInput formControlName="direccion" rows="2" placeholder="Av. Principal #123"></textarea>
+                  <mat-icon matPrefix>location_on</mat-icon>
+                  <mat-error>La dirección es requerida</mat-error>
+                </mat-form-field>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Ciudad</mat-label>
+                    <input matInput formControlName="ciudad" placeholder="Guatemala">
+                    <mat-icon matPrefix>location_city</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Estado/Provincia</mat-label>
+                    <input matInput formControlName="estadoProvincia" placeholder="Guatemala">
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Código Postal</mat-label>
+                    <input matInput formControlName="codigoPostal" placeholder="01001">
+                    <mat-icon matPrefix>markunread_mailbox</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>País *</mat-label>
+                    <input matInput formControlName="pais" placeholder="Guatemala">
+                    <mat-icon matPrefix>public</mat-icon>
+                    <mat-error>El país es requerido</mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Contacto -->
+          <mat-tab label="Contacto">
+            <div class="tab-content">
+              <div class="form-section">
+                <h3>Información de Contacto</h3>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Teléfono Principal</mat-label>
+                    <input matInput formControlName="telefonoPrincipal" placeholder="+502 2234-5678">
+                    <mat-icon matPrefix>phone</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Teléfono Secundario</mat-label>
+                    <input matInput formControlName="telefonoSecundario" placeholder="+502 5678-9012">
+                    <mat-icon matPrefix>phone_iphone</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Email Principal *</mat-label>
+                  <input matInput type="email" formControlName="emailPrincipal" placeholder="contacto@vetcare.com">
+                  <mat-icon matPrefix>email</mat-icon>
+                  <mat-error>Ingrese un email válido</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Email Secundario</mat-label>
+                  <input matInput type="email" formControlName="emailSecundario" placeholder="info@vetcare.com">
+                  <mat-icon matPrefix>alternate_email</mat-icon>
+                  <mat-error>Ingrese un email válido</mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Sitio Web</mat-label>
+                  <input matInput formControlName="sitioWeb" placeholder="https://www.vetcare.com">
+                  <mat-icon matPrefix>language</mat-icon>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Moneda -->
+          <mat-tab label="Moneda">
+            <div class="tab-content">
+              <div class="form-section">
+                <h3>Configuración de Moneda</h3>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Moneda *</mat-label>
+                    <mat-select formControlName="codigoMoneda">
+                      <mat-option *ngFor="let moneda of monedasISO" [value]="moneda.codigo">
+                        {{ moneda.codigo }} - {{ moneda.nombre }} ({{ moneda.simbolo }})
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>attach_money</mat-icon>
+                    <mat-error>Debe seleccionar una moneda</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Símbolo *</mat-label>
+                    <input matInput formControlName="simboloMoneda" placeholder="Q" readonly>
+                    <mat-hint>Se asigna automáticamente</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Nombre de la Moneda</mat-label>
+                  <input matInput formControlName="nombreMoneda" placeholder="Quetzal Guatemalteco" readonly>
+                  <mat-hint>Se asigna automáticamente</mat-hint>
+                </mat-form-field>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Posición del Símbolo *</mat-label>
+                    <mat-select formControlName="posicionSimbolo">
+                      <mat-option value="antes">Antes ({{ configuracionForm.get('simboloMoneda')?.value }} 100.00)</mat-option>
+                      <mat-option value="despues">Después (100.00 {{ configuracionForm.get('simboloMoneda')?.value }})</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Decimales</mat-label>
+                    <input matInput type="number" formControlName="decimales" min="0" max="4">
+                    <mat-hint>0 a 4 decimales</mat-hint>
+                    <mat-error>Debe estar entre 0 y 4</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Separador de Miles</mat-label>
+                    <input matInput formControlName="separadorMiles" placeholder="," maxlength="1">
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>Separador de Decimales</mat-label>
+                    <input matInput formControlName="separadorDecimales" placeholder="." maxlength="1">
+                  </mat-form-field>
+                </div>
+
+                <div class="preview-section">
+                  <h4>Vista Previa</h4>
+                  <div class="preview-value">{{ getVistaPrevia() }}</div>
+                </div>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Tab: Personalización -->
+          <mat-tab label="Personalización">
+            <div class="tab-content">
+              <div class="form-section">
+                <h3>Logotipo</h3>
+
+                <div class="logo-section">
+                  <div class="logo-upload-options">
+                    <mat-button-toggle-group [(ngModel)]="uploadMethod" [ngModelOptions]="{standalone: true}">
+                      <mat-button-toggle value="url">URL</mat-button-toggle>
+                      <mat-button-toggle value="file">Subir Archivo</mat-button-toggle>
+                    </mat-button-toggle-group>
+                  </div>
+
+                  <div *ngIf="uploadMethod === 'url'" class="url-input">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>URL del Logo</mat-label>
+                      <input 
+                        matInput 
+                        formControlName="logoUrl" 
+                        placeholder="https://ejemplo.com/logo.png"
+                        (input)="onLogoUrlChange($any($event.target).value)">
+                      <mat-icon matPrefix>link</mat-icon>
+                    </mat-form-field>
+                  </div>
+
+                  <div *ngIf="uploadMethod === 'file'" class="file-input">
+                    <input 
+                      type="file" 
+                      #fileInput 
+                      accept="image/*,.svg" 
+                      (change)="onFileSelected($event)"
+                      style="display: none;">
+                    <button 
+                      mat-raised-button 
+                      type="button"
+                      (click)="fileInput.click()">
+                      <mat-icon>upload</mat-icon>
+                      Seleccionar Imagen
+                    </button>
+                    <small style="display: block; margin-top: 8px; color: #666;">
+                      Máximo 2MB. Formatos: JPG, PNG, GIF, SVG
+                    </small>
+                  </div>
+
+                  <div *ngIf="logoPreview" class="logo-preview">
+                    <mat-card>
+                      <img [src]="logoPreview" alt="Vista previa del logo">
+                      <button 
+                        mat-icon-button 
+                        color="warn"
+                        type="button"
+                        class="remove-logo-btn"
+                        (click)="removeLogo()">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </mat-card>
+                  </div>
+                </div>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <div class="form-section">
+                <h3>Apariencia</h3>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Color Primario</mat-label>
+                  <input matInput formControlName="colorPrimario" placeholder="#3B82F6">
+                  <input type="color" matPrefix [value]="configuracionForm.get('colorPrimario')?.value" (change)="configuracionForm.get('colorPrimario')?.setValue($any($event.target).value)">
+                  <mat-hint>Formato hexadecimal (#RRGGBB)</mat-hint>
+                  <mat-error>Debe ser un color hexadecimal válido</mat-error>
+                </mat-form-field>
+              </div>
+
+              <mat-divider></mat-divider>
+
+              <div class="form-section">
+                <h3>Documentos</h3>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Pie de Página en Documentos</mat-label>
+                  <textarea matInput formControlName="piePaginaDocumentos" rows="3" placeholder="Gracias por confiar en nosotros"></textarea>
+                  <mat-hint>Se imprime al pie de facturas y documentos</mat-hint>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Mensaje de Agradecimiento</mat-label>
+                  <textarea matInput formControlName="mensajeAgradecimiento" rows="2" placeholder="¡Gracias por su visita!"></textarea>
+                  <mat-hint>Mensaje final en documentos</mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            type="submit"
+            [disabled]="loading()">
+            <mat-spinner diameter="20" *ngIf="loading()" style="display: inline-block; margin-right: 8px;"></mat-spinner>
+            <mat-icon *ngIf="!loading()">save</mat-icon>
+            {{ esNuevo ? 'Crear Configuración' : 'Guardar Cambios' }}
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,334 @@
+<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'visibility' : 'medical_services' }}</mat-icon>
+  {{ isEditMode ? 'Detalles de Consulta' : 'Nueva Consulta Médica' }}
+</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="consultaForm">
+    <!-- Sección: Vincular con Cita Existente -->
+    <div class="section-title" *ngIf="!isEditMode">
+      <mat-icon>link</mat-icon>
+      <h3>Vincular con Cita Existente (Opcional)</h3>
+    </div>
+
+    <div class="cita-selector-container" *ngIf="!isEditMode">
+      <mat-form-field appearance="outline" class="full-width" *ngIf="mostrarBuscarCita()">
+        <mat-label>Buscar cita confirmada</mat-label>
+        <input 
+          matInput 
+          [formControl]="citaIdControl"
+          [matAutocomplete]="autoCita"
+          placeholder="Buscar por mascota, cliente o motivo">
+        <mat-icon matPrefix>search</mat-icon>
+        <mat-autocomplete 
+          #autoCita="matAutocomplete"
+          [displayWith]="displayCitaFn.bind(this)"
+          (optionSelected)="onCitaSelected($event)">
+          <mat-option *ngFor="let cita of filteredCitas | async" [value]="cita.id">
+            <div class="cita-option">
+              <div class="cita-header">
+                <mat-icon class="cita-icon">event</mat-icon>
+                <span class="mascota">{{ cita.mascotaNombre }}</span>
+                <mat-chip class="estado-chip">{{ cita.estadoTexto }}</mat-chip>
+              </div>
+              <div class="cita-details">
+                <span class="cliente">👤 {{ cita.clienteNombre }}</span>
+                <span class="fecha">🕐 {{ formatCitaFecha(cita.fechaHora) }}</span>
+              </div>
+              <div class="cita-motivo">{{ cita.motivo }}</div>
+            </div>
+          </mat-option>
+          <mat-option *ngIf="(filteredCitas | async)?.length === 0" [disabled]="true">
+            <div class="no-citas">
+              <mat-icon>info</mat-icon>
+              <span>No hay citas disponibles</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-hint>Busca una cita confirmada para vincular a esta consulta</mat-hint>
+      </mat-form-field>
+
+      <!-- Mostrar cita seleccionada -->
+      <div class="cita-selected" *ngIf="!mostrarBuscarCita() && consultaForm.get('citaId')?.value">
+        <div class="selected-info">
+          <mat-icon>check_circle</mat-icon>
+          <span>Consulta vinculada a cita existente</span>
+        </div>
+        <button 
+          mat-button 
+          color="warn"
+          type="button"
+          (click)="limpiarCita()">
+          <mat-icon>close</mat-icon>
+          Desvincular
+        </button>
+      </div>
+
+      <!-- Botón para consulta Walk-in -->
+      <div class="walkin-info" *ngIf="mostrarBuscarCita()">
+        <mat-icon>info</mat-icon>
+        <span>Si el paciente llegó sin cita (walk-in), deja este campo vacío y llena los datos manualmente</span>
+      </div>
+    </div>
+
+    <!-- Mostrar si tiene cita en modo edición -->
+    <div class="cita-selected" *ngIf="isEditMode && consultaForm.get('citaId')?.value">
+      <div class="selected-info">
+        <mat-icon>check_circle</mat-icon>
+        <span>Consulta vinculada a cita #{{ consultaForm.get('citaId')?.value }}</span>
+      </div>
+    </div>
+
+    <mat-divider *ngIf="!isEditMode"></mat-divider>
+
+    <!-- Sección: Información del Paciente -->
+    <div class="section-title">
+      <mat-icon>pets</mat-icon>
+      <h3>Información del Paciente</h3>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cliente</mat-label>
+        <input 
+          matInput 
+          formControlName="clienteId"
+          [matAutocomplete]="autoCliente"
+          placeholder="Buscar cliente">
+        <mat-icon matPrefix>person</mat-icon>
+        <mat-autocomplete 
+          #autoCliente="matAutocomplete"
+          [displayWith]="displayClienteFn.bind(this)">
+          <mat-option *ngFor="let cliente of filteredClientes | async" [value]="cliente.id">
+            <div class="autocomplete-option">
+              <span class="nombre">{{ cliente.nombreCompleto }}</span>
+              <span class="info">{{ cliente.telefono }}</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="consultaForm.get('clienteId')?.invalid">
+          {{ getErrorMessage('clienteId') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mascota</mat-label>
+        <input 
+          matInput 
+          formControlName="mascotaId"
+          [matAutocomplete]="autoMascota"
+          placeholder="Buscar mascota">
+        <mat-icon matPrefix>pets</mat-icon>
+        <mat-autocomplete 
+          #autoMascota="matAutocomplete"
+          [displayWith]="displayMascotaFn.bind(this)">
+          <mat-option *ngFor="let mascota of filteredMascotas | async" [value]="mascota.id">
+            <div class="autocomplete-option">
+              <span class="nombre">{{ mascota.nombre }}</span>
+              <span class="info">{{ mascota.especie }} - {{ mascota.clienteNombre }}</span>
+            </div>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-error *ngIf="consultaForm.get('mascotaId')?.invalid">
+          {{ getErrorMessage('mascotaId') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Sección: Datos de la Consulta -->
+    <div class="section-title">
+      <mat-icon>event</mat-icon>
+      <h3>Datos de la Consulta</h3>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Fecha y Hora</mat-label>
+      <input 
+        matInput 
+        type="datetime-local"
+        formControlName="fechaHora"
+        placeholder="Fecha de la consulta">
+      <mat-icon matPrefix>schedule</mat-icon>
+      <mat-error *ngIf="consultaForm.get('fechaHora')?.invalid">
+        {{ getErrorMessage('fechaHora') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Motivo de Consulta</mat-label>
+      <input 
+        matInput 
+        formControlName="motivo"
+        placeholder="Ej: Revisión general, vómitos, cojera">
+      <mat-icon matPrefix>description</mat-icon>
+      <mat-error *ngIf="consultaForm.get('motivo')?.invalid">
+        {{ getErrorMessage('motivo') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-divider></mat-divider>
+
+    <!-- Sección: Signos Vitales -->
+    <div class="section-title">
+      <mat-icon>favorite</mat-icon>
+      <h3>Signos Vitales</h3>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Peso (kg)</mat-label>
+        <input 
+          matInput 
+          type="number"
+          formControlName="pesoKg"
+          placeholder="Ej: 25.5"
+          step="0.1">
+        <mat-icon matPrefix>monitor_weight</mat-icon>
+        <span matSuffix>kg</span>
+        <mat-error *ngIf="consultaForm.get('pesoKg')?.invalid">
+          {{ getErrorMessage('pesoKg') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Temperatura (°C)</mat-label>
+        <input 
+          matInput 
+          type="number"
+          formControlName="temperaturaCelsius"
+          placeholder="Ej: 38.5"
+          step="0.1">
+        <mat-icon matPrefix>thermostat</mat-icon>
+        <span matSuffix>°C</span>
+        <mat-error *ngIf="consultaForm.get('temperaturaCelsius')?.invalid">
+          {{ getErrorMessage('temperaturaCelsius') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Frecuencia Cardíaca</mat-label>
+        <input 
+          matInput 
+          type="number"
+          formControlName="frecuenciaCardiaca"
+          placeholder="Ej: 90">
+        <mat-icon matPrefix>favorite</mat-icon>
+        <span matSuffix>lpm</span>
+        <mat-error *ngIf="consultaForm.get('frecuenciaCardiaca')?.invalid">
+          {{ getErrorMessage('frecuenciaCardiaca') }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Frecuencia Respiratoria</mat-label>
+        <input 
+          matInput 
+          type="number"
+          formControlName="frecuenciaRespiratoria"
+          placeholder="Ej: 25">
+        <mat-icon matPrefix>air</mat-icon>
+        <span matSuffix>rpm</span>
+        <mat-error *ngIf="consultaForm.get('frecuenciaRespiratoria')?.invalid">
+          {{ getErrorMessage('frecuenciaRespiratoria') }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Sección: Diagnóstico y Tratamiento -->
+    <div class="section-title">
+      <mat-icon>assignment</mat-icon>
+      <h3>Diagnóstico y Tratamiento</h3>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Diagnóstico</mat-label>
+      <textarea 
+        matInput 
+        formControlName="diagnostico"
+        rows="3"
+        placeholder="Descripción del diagnóstico">
+      </textarea>
+      <mat-icon matPrefix>assignment</mat-icon>
+      <mat-error *ngIf="consultaForm.get('diagnostico')?.invalid">
+        {{ getErrorMessage('diagnostico') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tratamiento</mat-label>
+      <textarea 
+        matInput 
+        formControlName="tratamiento"
+        rows="3"
+        placeholder="Medicamentos, procedimientos, recomendaciones">
+      </textarea>
+      <mat-icon matPrefix>medication</mat-icon>
+      <mat-error *ngIf="consultaForm.get('tratamiento')?.invalid">
+        {{ getErrorMessage('tratamiento') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Observaciones</mat-label>
+      <textarea 
+        matInput 
+        formControlName="observaciones"
+        rows="2"
+        placeholder="Notas adicionales">
+      </textarea>
+      <mat-icon matPrefix>notes</mat-icon>
+      <mat-error *ngIf="consultaForm.get('observaciones')?.invalid">
+        {{ getErrorMessage('observaciones') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Próxima Visita</mat-label>
+      <input 
+        matInput 
+        [matDatepicker]="picker"
+        formControlName="proximaVisita"
+        placeholder="Fecha sugerida">
+      <mat-icon matPrefix>event</mat-icon>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <!-- Info del veterinario -->
+    <div class="info-section" *ngIf="currentUser">
+      <mat-icon>medical_services</mat-icon>
+      <span>Atendido por: <strong>{{ currentUser.nombreCompleto }}</strong></span>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button 
+    mat-button 
+    (click)="onCancel()">
+    {{ isViewMode ? 'Cerrar' : 'Cancelar' }}
+  </button>
+  <button 
+    mat-raised-button 
+    color="accent"
+    *ngIf="isViewMode"
+    (click)="enableEdit()">
+    <mat-icon>edit</mat-icon>
+    Editar
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary"
+    *ngIf="!isViewMode"
+    (click)="onSubmit()"
+    [disabled]="loading || consultaForm.invalid">
+    <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>
+    <span *ngIf="!loading">{{ isEditMode ? 'Actualizar' : 'Guardar' }}</span>
+  </button>
+</mat-dialog-actions>
