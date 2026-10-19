@@ -28,9 +28,9 @@ export interface CreateCitaDto {
   mascotaId: number;
   clienteId: number;
   veterinarioId: number;
-  fechaHora: Date;
+  fechaHora: string;
   motivo: string;
-  observaciones?: string;
+  observaciones?: string | null;
 }
 
 export interface UpdateCitaDto {
@@ -38,10 +38,10 @@ export interface UpdateCitaDto {
   mascotaId: number;
   clienteId: number;
   veterinarioId: number;
-  fechaHora: Date;
+  fechaHora: string;
   motivo: string;
   estado: EstadoCita;
-  observaciones?: string;
+  observaciones?: string | null;
 }
 
 export interface CambiarEstadoCitaDto {

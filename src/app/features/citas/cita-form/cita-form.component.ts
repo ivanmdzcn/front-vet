@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
@@ -16,9 +17,11 @@ import { CitaService } from '../services/cita.service';
 import { MascotaService } from '../../mascotas/services/mascota.service';
 import { ClienteService } from '../../clientes/services/cliente.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { UsuarioService } from '../../usuarios/services/usuario.service';
 import { Cita, EstadoCita } from '../../../core/models/cita.models';
 import { Mascota } from '../../../core/models/mascota.models';
 import { Cliente } from '../../../core/models/cliente.models';
+import { Usuario } from '../../../core/models/usuario.models';
 
 @Component({
   selector: 'app-cita-form',
@@ -33,7 +36,8 @@ import { Cliente } from '../../../core/models/cliente.models';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSelectModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
+    MatSnackBarModule
   ],
   templateUrl: './cita-form.component.html',
   styleUrl: './cita-form.component.scss'
@@ -44,15 +48,19 @@ export class CitaFormComponent implements OnInit {
   private mascotaService = inject(MascotaService);
   private clienteService = inject(ClienteService);
   private authService = inject(AuthService);
+  private usuarioService = inject(UsuarioService);
+  private snackBar = inject(MatSnackBar);
   private dialogRef = inject(MatDialogRef<CitaFormComponent>);
   data: Cita | null = inject(MAT_DIALOG_DATA, { optional: true });
 
   citaForm!: FormGroup;
   loading = false;
   isEditMode = false;
+  errorServidor = signal<string | null>(null);
 
   clientes = signal<Cliente[]>([]);
   mascotas = signal<Mascota[]>([]);
+  veterinarios = signal<Usuario[]>([]);
   filteredClientes!: Observable<Cliente[]>;
   filteredMascotas!: Observable<Mascota[]>;
 
@@ -71,6 +79,7 @@ export class CitaFormComponent implements OnInit {
     this.initForm();
     this.loadClientes();
     this.loadMascotas();
+    this.loadVeterinarios();
     this.setupFilters();
     this.setupClienteChange();
 
@@ -100,6 +109,14 @@ export class CitaFormComponent implements OnInit {
     const date = new Date(dateInput);
     const pad = (n: number) => n.toString().padStart(2, '0');
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  loadVeterinarios(): void {
+    this.usuarioService.getAll().subscribe({
+      next: (data) => {
+        this.veterinarios.set(data.filter(u => u.activo && u.rol === 'Veterinario'));
+      }
+    });
   }
 
   loadClientes(): void {
@@ -174,22 +191,58 @@ export class CitaFormComponent implements OnInit {
     return m ? `${m.nombre} (${m.especie})` : '';
   }
 
+  private convertToLocalISOString(dateInput: string): string {
+    const date = new Date(dateInput);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
   onSubmit(): void {
     if (this.citaForm.invalid) return;
     this.loading = true;
+    this.errorServidor.set(null);
 
-    const formValue = { 
-      ...this.citaForm.value,
-      fechaHora: new Date(this.citaForm.value.fechaHora).toISOString() 
-    };
+    const fechaHora = this.convertToLocalISOString(this.citaForm.value.fechaHora);
+    const observaciones = this.citaForm.value.observaciones?.trim() || null;
 
-    const action = this.isEditMode 
-      ? this.citaService.update(this.data!.id, formValue)
-      : this.citaService.create(formValue);
+    const action = this.isEditMode
+      ? this.citaService.update(this.data!.id, {
+          id: this.data!.id,
+          mascotaId: Number(this.citaForm.value.mascotaId),
+          clienteId: Number(this.citaForm.value.clienteId),
+          veterinarioId: Number(this.citaForm.value.veterinarioId),
+          fechaHora,
+          motivo: this.citaForm.value.motivo?.trim() || '',
+          estado: this.citaForm.value.estado,
+          observaciones
+        })
+      : this.citaService.create({
+          mascotaId: Number(this.citaForm.value.mascotaId),
+          clienteId: Number(this.citaForm.value.clienteId),
+          veterinarioId: Number(this.citaForm.value.veterinarioId),
+          fechaHora,
+          motivo: this.citaForm.value.motivo?.trim() || '',
+          observaciones
+        });
 
     action.subscribe({
       next: () => this.dialogRef.close(true),
-      error: () => this.loading = false
+      error: (error) => {
+        this.loading = false;
+        const mensaje = error?.error?.message ?? error?.message ?? 'Error al guardar la cita';
+        this.errorServidor.set(mensaje);
+        this.snackBar.open(mensaje, 'Cerrar', {
+          duration: 6000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['snack-error']
+        });
+      }
     });
   }
 

@@ -2,7 +2,16 @@
   <h1>Bienvenido, {{ currentUser?.nombreCompleto }}</h1>
   <p class="subtitle">Rol: {{ currentUser?.rol }}</p>
 
-  <div class="cards-grid">
+  <div *ngIf="loading()" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Cargando resumen...</p>
+  </div>
+
+  <div *ngIf="error()" class="error-message">
+    {{ error() }}
+  </div>
+
+  <div class="cards-grid" *ngIf="!loading() && summary()">
     <mat-card class="stat-card">
       <mat-card-content>
         <div class="stat-icon" style="background-color: #e3f2fd;">
@@ -10,7 +19,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-label">Clientes</div>
-          <div class="stat-value">-</div>
+          <div class="stat-value">{{ summary()?.totalClientes }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -22,7 +31,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-label">Mascotas</div>
-          <div class="stat-value">-</div>
+          <div class="stat-value">{{ summary()?.totalMascotas }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -34,7 +43,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-label">Citas Hoy</div>
-          <div class="stat-value">-</div>
+          <div class="stat-value">{{ summary()?.citasHoy }}</div>
         </div>
       </mat-card-content>
     </mat-card>
@@ -46,7 +55,7 @@
         </div>
         <div class="stat-info">
           <div class="stat-label">Consultas</div>
-          <div class="stat-value">-</div>
+          <div class="stat-value">{{ summary()?.totalConsultas }}</div>
         </div>
       </mat-card-content>
     </mat-card>

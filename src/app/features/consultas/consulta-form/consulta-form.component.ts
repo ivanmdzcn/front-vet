@@ -261,12 +261,23 @@ export class ConsultaFormComponent implements OnInit {
     this.consultaForm.enable();
   }
 
+  private convertToLocalISOString(dateInput: string): string {
+    const date = new Date(dateInput);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  }
+
   onSubmit(): void {
     if (this.consultaForm.invalid) return;
     this.loading = true;
     const formValue = { 
       ...this.consultaForm.value,
-      fechaHora: new Date(this.consultaForm.value.fechaHora).toISOString()
+      fechaHora: this.convertToLocalISOString(this.consultaForm.value.fechaHora)
     };
 
     const action = (this.isEditMode && this.data?.id)
