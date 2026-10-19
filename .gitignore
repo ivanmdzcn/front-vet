@@ -46,6 +46,7 @@ Thumbs.db
 .env.development
 .env.production
 docker-compose.override.yml
+docker-compose.yml
 
 # Build artifacts
 *.log
